@@ -208,11 +208,22 @@ function heatCard(cur, prev) {
     add(n, h('span', null, r.d.name || r.d.id), prev ? arrow(r.delta) : null);
     const show = !prev || r.changed;
     const tx = h('div', 't', show ? (r.d.note || '—') : '= IDEM');
-    t.onclick = () => { tx.textContent = tx.textContent === '= IDEM' ? (r.d.note || '—') : '= IDEM'; };
+    if (!show) {
+      // Domaine inchangé : un tap affiche la note (rappel du jour précédent), un second la replie.
+      t.style.cursor = 'pointer';
+      t.onclick = () => {
+        const open = tx.textContent === '= IDEM';
+        tx.textContent = open ? '= IDEM · ' + (r.d.note || '—') : '= IDEM';
+      };
+    } else {
+      t.style.cursor = 'default'; // domaine nouveau ou modifié : la note est déjà affichée, rien à replier
+    }
     add(t, n, tx); grid.append(t);
   });
   const n = rows.filter(r => r.changed).length;
-  return section('Carte des 8 domaines', prev ? n : null, [grid, h('p', 'mut', 'Tape une tuile pour voir / masquer le détail.')], true);
+  const idemCount = prev ? rows.length - n : 0;
+  const hint = idemCount ? h('p', 'mut', 'Tape une tuile « = IDEM » pour revoir sa note.') : null;
+  return section('Carte des 8 domaines', prev ? n : null, [grid, hint].filter(Boolean), true);
 }
 
 /* --- top changements --- */
