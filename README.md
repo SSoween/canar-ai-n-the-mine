@@ -9,7 +9,7 @@ Early-warning watch for systemic risks. Alert level, what changed since last tim
 ## English
 
 ### What it is
-A monthly risk report generated **entirely on your own hardware** by a local LLM, and read on your phone through a small offline PWA.
+A **daily** risk report generated **entirely on your own hardware** by a local LLM, and read on your phone through a small offline PWA.
 The PWA computes on its own what moved since last time (▲ ▼ ► 🆕) and collapses what didn't (« = IDEM »), so you only read what changed.
 The project has no cloud AI and no API key, and your data stays with you.
 
@@ -49,17 +49,26 @@ It uses a 5-level alert scale: N0 green to N4 black.
    export JANUS_MODEL=<model-name>
    export ZONE="World, focus Canada / Québec"
    export SITUATION="urban, house, family"
-   export FREQ="monthly"
+   export FREQ="daily"
+   export KEEP_DAYS=30          # local retention of snapshots and intermediate files
+   export JANUS_CTX_CHARS=60000 # source text per extraction call (fits a 32K context)
    ```
-3. **Run once by hand.**
+3. **Run once by hand** and note how long it takes.
    ```bash
-   source ~/.config/canar/env && cd janus && ./run.sh
+   source ~/.config/canar/env && cd janus && ./run_canari.sh
    ```
-4. **Schedule it**, for example on the 1st of each month:
+4. **Schedule it every day**, e.g. at 05:40, through `run_canari.sh` (switches the AI server to its "canari" mode, then restores the previous one):
    ```cron
-   40 5 1 * * . $HOME/.config/canar/env && cd $HOME/canar-ai-n-the-mine && git pull -q && cd janus && ./run.sh >> run.log 2>&1
+   40 5 * * * . $HOME/.config/canar/env && cd $HOME/canar-ai-n-the-mine && git pull -q && cd janus && ./run_canari.sh >> run.log 2>&1
    ```
-If an AI agent operates your server, `janus/PROMPTS-JANUS.md` contains ready-to-use operator prompts for setup, first run, scheduling, troubleshooting and quarterly maintenance.
+If an AI agent operates your server, `janus/PROMPTS-JANUS.md` contains ready-to-use operator prompts for setup, first run, scheduling, troubleshooting and the monthly review.
+
+### Daily rhythm
+- Each report is compared with the **previous day's** report. On most days little changes, and the PWA shows mostly « = IDEM »: that is the expected result, not a bug.
+- The prompts tell the model to keep only facts from the period, not to repeat facts already counted, and not to nudge probabilities without a new fact. This avoids daily noise.
+- Running the chain twice on the same day replaces that day's report and still compares it with the day before.
+- On the phone, the PWA keeps the last 180 reports (about 6 months) and downloads only the new ones. The full history stays in `data/`.
+- On the server, snapshots and intermediate files older than `KEEP_DAYS` are deleted by `run.sh`. Published reports are never deleted.
 
 ### Sources
 `janus/sources.json` is the heart of the report: **the model only knows what these sources say.**
@@ -82,7 +91,7 @@ Each entry has these fields:
 **Adapting the list to your needs:**
 - **Change the zone.** Swap the regional institutions for your own: national statistics office, central bank, civil protection agency, public health institute, grid operator.
 - **Change the focus.** If a domain matters more to you, such as health or cyber, give it 4 to 6 solid sources. A domain with 0 to 2 sources will produce thin or empty analysis.
-- **Prefer** RSS/Atom feeds or static news pages from primary institutions. **Avoid** paywalled media, JavaScript-only apps, PDFs, annual reports, and opinion pieces, which are noise for a monthly fact-based report.
+- **Prefer** RSS/Atom feeds or static news pages from primary institutions. **Avoid** paywalled media, JavaScript-only apps, PDFs, annual reports, and opinion pieces, which are noise for a daily fact-based report.
 - **Always append** new sources at the end of the list and never reorder it: the order defines the source numbers [n] used in past reports.
 - **Test** after any change with `python3 fetch_sources.py`. It prints, for each source, whether text was retrieved.
 
@@ -97,7 +106,8 @@ janus/prompts/extract.txt       step 1 prompt: fact extraction
 janus/prompts/synthesize.txt    step 2 prompt: report writing
 janus/generate.py               steps 1–2 against the local LLM
 janus/publish.py                step 3: validation, data/, git push
-janus/run.sh                    full chain, cron-ready
+janus/run.sh                    full chain (expects the LLM server to be up)
+janus/run_canari.sh             daily entry point: switch to "canari" mode, run, restore previous mode
 janus/PROMPTS-JANUS.md          operator prompts for an AI agent on the server
 ```
 After changing any PWA file, bump `VERSION` in `sw.js` so phones refresh their cache.
@@ -111,7 +121,7 @@ After changing any PWA file, bump `VERSION` in `sw.js` so phones refresh their c
 ## Français
 
 ### De quoi s'agit-il
-Un rapport mensuel de veille des risques, généré **entièrement sur ton propre matériel** par un modèle de langue local, et lu sur ton téléphone dans une petite PWA hors ligne.
+Un rapport **quotidien** de veille des risques, généré **entièrement sur ton propre matériel** par un modèle de langue local, et lu sur ton téléphone dans une petite PWA hors ligne.
 La PWA calcule seule ce qui a bougé depuis le rapport précédent (▲ ▼ ► 🆕) et replie ce qui n'a pas changé (« = IDEM »). Tu ne lis donc que les changements.
 Le projet n'utilise ni IA dans le cloud ni clé API, et tes données restent chez toi.
 
@@ -151,17 +161,26 @@ Il utilise une échelle d'alerte à 5 niveaux, de N0 vert à N4 noir.
    export JANUS_MODEL=<nom-du-modèle>
    export ZONE="Monde, focus Canada / Québec"
    export SITUATION="urbain, maison, famille"
-   export FREQ="mensuel"
+   export FREQ="quotidien"
+   export KEEP_DAYS=30          # conservation locale des instantanés et fichiers intermédiaires
+   export JANUS_CTX_CHARS=60000 # texte des sources par appel d'extraction (tient dans 32K)
    ```
-3. **Lancer une première fois à la main.**
+3. **Lancer une première fois à la main** et noter la durée.
    ```bash
-   source ~/.config/canar/env && cd janus && ./run.sh
+   source ~/.config/canar/env && cd janus && ./run_canari.sh
    ```
-4. **Planifier**, par exemple le 1er de chaque mois :
+4. **Planifier tous les jours**, par exemple à 5h40, via `run_canari.sh` (passe le serveur IA en mode « canari », puis restaure le mode précédent) :
    ```cron
-   40 5 1 * * . $HOME/.config/canar/env && cd $HOME/canar-ai-n-the-mine && git pull -q && cd janus && ./run.sh >> run.log 2>&1
+   40 5 * * * . $HOME/.config/canar/env && cd $HOME/canar-ai-n-the-mine && git pull -q && cd janus && ./run_canari.sh >> run.log 2>&1
    ```
-Si un agent IA administre ton serveur, `janus/PROMPTS-JANUS.md` contient des prompts prêts à l'emploi pour l'installation, le premier lancement, la planification, le diagnostic et la maintenance trimestrielle.
+Si un agent IA administre ton serveur, `janus/PROMPTS-JANUS.md` contient des prompts prêts à l'emploi pour l'installation, le premier lancement, la planification, le diagnostic et le bilan mensuel.
+
+### Rythme quotidien
+- Chaque rapport est comparé à celui de **la veille**. La plupart des jours, peu de choses changent et la PWA affiche surtout « = IDEM » : c'est le résultat attendu, pas une panne.
+- Les prompts demandent au modèle de ne retenir que les faits de la période, de ne pas répéter un fait déjà pris en compte et de ne pas retoucher une probabilité sans fait nouveau. Cela évite le bruit d'un jour à l'autre.
+- Relancer la chaîne deux fois le même jour remplace le rapport du jour, toujours comparé à celui de la veille.
+- Sur le téléphone, la PWA garde les 180 derniers rapports (environ 6 mois) et ne télécharge que les nouveaux. L'historique complet reste dans `data/`.
+- Sur le serveur, `run.sh` supprime les instantanés et fichiers intermédiaires plus vieux que `KEEP_DAYS`. Les rapports publiés ne sont jamais supprimés.
 
 ### Sources
 `janus/sources.json` est le cœur du rapport : **le modèle ne sait que ce que disent ces sources.**
@@ -184,7 +203,7 @@ Chaque entrée contient ces champs :
 **Adapter la liste à tes besoins :**
 - **Changer de zone.** Remplace les institutions régionales par les tiennes : institut de statistique, banque centrale, sécurité civile, santé publique, gestionnaire du réseau électrique.
 - **Changer de priorités.** Si un domaine compte plus pour toi, comme la santé ou le cyber, donne-lui 4 à 6 sources solides. Un domaine qui n'a que 0 à 2 sources donnera une analyse pauvre ou vide.
-- **Privilégie** les flux RSS/Atom ou les pages d'actualités statiques des institutions primaires. **Évite** les médias payants, les applications qui exigent JavaScript, les PDF, les rapports annuels et les opinions : dans un rapport mensuel fondé sur les faits, ce n'est que du bruit.
+- **Privilégie** les flux RSS/Atom ou les pages d'actualités statiques des institutions primaires. **Évite** les médias payants, les applications qui exigent JavaScript, les PDF, les rapports annuels et les opinions : dans un rapport quotidien fondé sur les faits, ce n'est que du bruit.
 - **Ajoute toujours** les nouvelles sources à la fin de la liste et ne la réordonne jamais : l'ordre fixe les numéros [n] cités dans les anciens rapports.
 - **Teste** après chaque modification avec `python3 fetch_sources.py`. Il indique, pour chaque source, si du texte a été récupéré.
 
@@ -199,7 +218,8 @@ janus/prompts/extract.txt       prompt de l'étape 1 : extraction des faits
 janus/prompts/synthesize.txt    prompt de l'étape 2 : rédaction du rapport
 janus/generate.py               étapes 1–2 avec le LLM local
 janus/publish.py                étape 3 : validation, data/, git push
-janus/run.sh                    chaîne complète, prête pour cron
+janus/run.sh                    chaîne complète (suppose le serveur LLM démarré)
+janus/run_canari.sh             point d'entrée quotidien : mode « canari », veille, retour au mode précédent
 janus/PROMPTS-JANUS.md          prompts opérateur pour un agent IA sur le serveur
 ```
 Après toute modification d'un fichier de la PWA, incrémente `VERSION` dans `sw.js` pour que les téléphones rafraîchissent leur cache.
