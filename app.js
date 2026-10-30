@@ -478,7 +478,15 @@ function init() {
   };
   render();
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-    navigator.serviceWorker.register('sw.js').catch(() => { /* hors-ligne indisponible */ });
+    // Quand une nouvelle version du service worker prend la main, on recharge une fois la page
+    // pour que HTML, CSS et JS soient tous de la même version.
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (hadController && !reloaded) { reloaded = true; location.reload(); }
+    });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+      .then(reg => reg.update()).catch(() => { /* hors-ligne indisponible */ });
   }
   // Synchro silencieuse au lancement si le dépôt expose data/index.json
   pullFromRepo().then(n => {
