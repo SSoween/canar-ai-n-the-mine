@@ -1,5 +1,5 @@
 // Service worker : app shell en cache-first, données (data/*.json) en network-first.
-const VERSION = 'v5'; // à incrémenter à chaque modification des fichiers de l'app
+const VERSION = 'v6'; // à incrémenter à chaque modification des fichiers de l'app
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
 
