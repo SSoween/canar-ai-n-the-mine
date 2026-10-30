@@ -1,0 +1,14 @@
+# Environnement Python local
+.venv/
+__pycache__/
+
+# Fichiers de travail de Janus (jamais publiés)
+janus/snapshots/
+janus/out/
+janus/*.log
+janus/facts.json
+janus/*.facts.json
+
+# À ne JAMAIS commiter : fichiers d'environnement et secrets
+.env
+*.env
