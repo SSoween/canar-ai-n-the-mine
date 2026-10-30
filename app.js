@@ -83,7 +83,7 @@ function addReport(r, silent) {
 }
 
 /* ---------- construction d'une section repliable ---------- */
-function section(title, status, bodyEls) {
+function section(title, status, bodyEls, open = false) {
   // status : null (pas de précédent) | nombre de changements
   const d = h('details', 'sec');
   const s = h('summary');
@@ -93,7 +93,7 @@ function section(title, status, bodyEls) {
   else s.append(h('span', 'chip', '= IDEM'));
   d.append(s);
   d.append(add(h('div', 'sbody'), bodyEls));
-  if (status === null || status > 0) d.open = true;
+  d.open = open; // tout est replié par défaut ; le badge indique s'il y a du changement
   return d;
 }
 
@@ -128,6 +128,45 @@ function render() {
   app.append(hypSec(cur, prev));
   app.append(sourcesSec(cur));
   if (cur.caveat) add(app, add(h('div', 'recul'), h('b', null, '⚠️ Recul : '), document.createTextNode(String(cur.caveat))));
+}
+
+
+/* --- références de sources cliquables : [n] trouvés dans les textes + numéros explicites --- */
+function srcRefs(cur, texts, extra) {
+  const ns = new Set((extra || []).map(Number));
+  (texts || []).forEach(t => String(t || '').replace(/\[(\d+)\]/g, (_, n) => { ns.add(Number(n)); return _; }));
+  const byN = new Map((cur.sources || []).map(s => [s.n, s]));
+  const list = [...ns].filter(n => byN.has(n)).sort((a, b) => a - b);
+  if (!list.length) return null;
+  const p = h('div', 'src');
+  p.append(h('span', 'mut', 'Sources : '));
+  list.forEach((n, i) => {
+    const s = byN.get(n);
+    const label = `[${n}] ${s.publisher || s.title || ''}`;
+    let el;
+    if (typeof s.url === 'string' && /^https:\/\//i.test(s.url)) {
+      el = h('a', null, label); el.href = s.url; el.target = '_blank'; el.rel = 'noopener noreferrer';
+    } else el = h('span', null, label);
+    if (s.title) el.title = s.title;
+    if (i) p.append(document.createTextNode(' · '));
+    p.append(el);
+  });
+  return p;
+}
+
+/* --- légende des impacts : pastilles de couleur réelles + exemple de cellule encadrée --- */
+function impactLegend() {
+  const box = h('div', 'mut');
+  box.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12px;margin-top:8px';
+  [[1, 'faible'], [2, 'moyen'], [3, 'élevé']].forEach(([v, lab]) => {
+    const it = h('span'); const dt = h('span', 'dot'); dt.style.background = lc(v);
+    dt.style.marginRight = '5px'; add(it, dt, document.createTextNode(lab)); box.append(it);
+  });
+  const it = h('span'); const sq = h('span');
+  sq.style.cssText = 'display:inline-block;width:12px;height:12px;border:2px solid var(--chgline);border-radius:3px;vertical-align:middle;margin-right:5px';
+  add(it, sq, document.createTextNode('changement depuis la veille')); box.append(it);
+  const none = h('span', null, '– aucun impact'); box.append(none);
+  return box;
 }
 
 /* --- en-tête --- */
@@ -173,7 +212,7 @@ function heatCard(cur, prev) {
     add(t, n, tx); grid.append(t);
   });
   const n = rows.filter(r => r.changed).length;
-  return section('Carte des 8 domaines', prev ? n : null, [grid, h('p', 'mut', 'Tape une tuile pour voir / masquer le détail.')]);
+  return section('Carte des 8 domaines', prev ? n : null, [grid, h('p', 'mut', 'Tape une tuile pour voir / masquer le détail.')], true);
 }
 
 /* --- top changements --- */
@@ -187,12 +226,12 @@ function topChanges(cur, prev) {
     [['Fait', c.fact], ['Mécanisme', c.mechanism], ['Effet', c.effect]].forEach(([k, v]) => {
       if (v) add(d, add(h('p'), h('span', 'k', k + ' : '), document.createTextNode(String(v))));
     });
-    if (Array.isArray(c.sources) && c.sources.length) d.append(h('p', 'mut', 'Sources : ' + c.sources.map(s => `[${s}]`).join(' ')));
+    const refs = srcRefs(cur, [c.fact, c.mechanism, c.effect], c.sources);
+    if (refs) d.append(refs);
     return d;
   });
   if (!els.length) els.push(h('p', 'mut', 'Peu de mouvement : = IDEM'));
   const d = section('Top 3 des changements', cur.top_changes.length ? (prev ? cur.top_changes.length : null) : 0, els);
-  d.open = true;
   return d;
 }
 
@@ -206,7 +245,6 @@ function scenariosSec(cur, prev) {
     const changed = !!prev && (!p || HZ.some(([k]) => num(s[k]) !== num(p[k])) || s.confidence !== p.confidence || s.trigger !== p.trigger);
     if (changed) changedCount++;
     const d = h('details', 'sc' + (changed ? ' chg' : ''));
-    if (changed || !prev) d.open = true;
     const sm = h('summary');
     const dl90 = !prev ? undefined : (p ? (num(s.p90) || 0) - (num(p.p90) || 0) : null);
     add(sm, h('span', 'nm', s.name || s.id), h('span', 'p90', num(s.p90) != null ? num(s.p90) + ' %' : '?'),
@@ -226,7 +264,8 @@ function scenariosSec(cur, prev) {
     const c = Math.max(0, Math.min(3, s.confidence | 0));
     add(bd, add(h('p'), h('span', 'mut', 'Confiance : '), h('span', 'conf', '●'.repeat(c) + '○'.repeat(3 - c))));
     if (s.trigger) add(bd, add(h('p'), h('span', 'mut', 'Déclencheur : '), document.createTextNode(s.trigger)));
-    if (s.justification && (changed || !prev)) bd.append(h('p', 'mut', s.justification));
+    if (s.justification) bd.append(h('p', 'mut', s.justification));
+    bd.append(srcRefs(cur, [s.justification, s.trigger]) || h('p', 'mut', 'Sources : aucune citée pour ce scénario.'));
     d.append(bd);
     return d;
   });
@@ -257,7 +296,7 @@ function impactsSec(cur, prev) {
     tb.append(tr);
   });
   tbl.append(tb);
-  const els = cur.impacts.length ? [add(h('div', 'tw'), tbl), h('p', 'mut', '● jaune = faible · orange = moyen · rouge = élevé · cellule encadrée = changement')] : [h('p', 'mut', 'Aucun impact renseigné.')];
+  const els = cur.impacts.length ? [add(h('div', 'tw'), tbl), impactLegend()] : [h('p', 'mut', 'Aucun impact renseigné.')];
   return section('Impacts quotidiens', prev ? changedRows : null, els);
 }
 
