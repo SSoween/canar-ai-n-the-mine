@@ -1,14 +1,16 @@
 // Service worker : RÉSEAU D'ABORD (toujours la dernière version publiée), cache en secours hors ligne.
-// Le pré-chargement contourne le cache HTTP du navigateur ({cache:'reload'}) : un ancien app.js
-// ne peut plus se mélanger à un nouveau style.css lors d'une mise à jour.
-const VERSION = 'v7'; // à incrémenter à chaque modification des fichiers de l'app
-const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest',
-  'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
+// - Le pré-chargement contourne le cache HTTP du navigateur ({cache:'reload'}).
+// - Il est TOLÉRANT : un fichier manquant (ex. une icône) n'empêche plus l'installation.
+//   Avant, une seule absence bloquait toute mise à jour et l'ancienne version restait aux commandes.
+const VERSION = 'v8'; // à incrémenter à chaque modification des fichiers de l'app
+const CORE = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest'];
+const EXTRA = ['icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(VERSION)
-      .then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' }))))
+      .then(c => Promise.allSettled([...CORE, ...EXTRA].map(u =>
+        fetch(new Request(u, { cache: 'reload' })).then(r => (r.ok ? c.put(u, r) : null)))))
       .then(() => self.skipWaiting())
   );
 });
