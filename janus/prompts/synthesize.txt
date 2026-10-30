@@ -47,6 +47,8 @@ CHAMPS
 - domains : exactement 8, ids geo, energie, supply, cyber, climat, sante, social, prep ;
   level 0 à 3 ; note 120 caractères maximum.
 - top_changes : 0 à 3 changements, strength "fort" ou "faible", sources = numéros du registre.
+- scenarios : dans "justification", cite entre crochets les numéros du registre qui fondent la
+  probabilité, par exemple "Stocks sous le minimum [7][12]". Sans fait sourcé : écris "incertitude élevée".
 - impacts : une ligne par scénario, gravité 0 (aucune) à 3 (élevée) pour eau, alim, energie,
   sante, mobilite, info, securite.
 - indicators : 3 à 5, avec seuils chiffrés si possible, status loin, approche ou franchi.
