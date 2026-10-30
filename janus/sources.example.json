@@ -1,0 +1,9 @@
+{
+  "_comment": "Copie en sources.json et remplace par TES sources validées (https uniquement). domains = ids parmi geo, energie, supply, cyber, climat, sante, social, prep. L'ordre fixe les numéros [n] : ajoute les nouvelles sources à la fin.",
+  "sources": [
+    { "id": "exemple-energie", "title": "Exemple : page statistiques énergie", "publisher": "Organisme à choisir", "url": "https://example.org/energie", "domains": ["energie"] },
+    { "id": "exemple-cyber", "title": "Exemple : bulletin d'alertes cyber (RSS)", "publisher": "Organisme à choisir", "url": "https://example.org/cyber.rss", "domains": ["cyber"] },
+    { "id": "exemple-sante", "title": "Exemple : bulletin épidémiologique", "publisher": "Organisme à choisir", "url": "https://example.org/sante", "domains": ["sante"] },
+    { "id": "exemple-prep", "title": "Exemple : communiqués gouvernementaux", "publisher": "Organisme à choisir", "url": "https://example.org/communiques.rss", "domains": ["prep", "social"] }
+  ]
+}

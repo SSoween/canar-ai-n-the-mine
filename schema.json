@@ -1,0 +1,180 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Rapport de veille (schéma v1)",
+  "description": "Format partagé par Claude, Janus et la PWA. Sert à contraindre la génération, valider avant commit et mesurer le test A/B.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "date", "period", "alert", "domains", "top_changes", "scenarios",
+               "impacts", "indicators", "actions", "hypotheses", "sources", "caveat"],
+  "properties": {
+    "schema": { "type": "integer", "enum": [1] },
+    "generator": { "type": "string", "description": "Qui a produit le rapport, ex. claude ou janus/<modèle>" },
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "period": { "type": "string" },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "zone": { "type": "string" },
+        "situation": { "type": "string" },
+        "frequence": { "type": "string" }
+      }
+    },
+    "alert": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "label", "summary", "change_reason"],
+      "properties": {
+        "level": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "label": { "type": "string", "enum": ["VERT", "JAUNE", "ORANGE", "ROUGE", "NOIR"] },
+        "summary": { "type": "string" },
+        "change_reason": { "type": "string" }
+      }
+    },
+    "domains": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "level", "note"],
+        "properties": {
+          "id": { "type": "string", "enum": ["geo", "energie", "supply", "cyber", "climat", "sante", "social", "prep"] },
+          "name": { "type": "string" },
+          "level": { "type": "integer", "minimum": 0, "maximum": 3 },
+          "note": { "type": "string", "maxLength": 160 }
+        }
+      }
+    },
+    "top_changes": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "strength", "domain", "fact", "mechanism", "effect", "sources"],
+        "properties": {
+          "title": { "type": "string" },
+          "strength": { "type": "string", "enum": ["fort", "faible"] },
+          "domain": { "type": "string" },
+          "fact": { "type": "string", "maxLength": 300 },
+          "mechanism": { "type": "string", "maxLength": 300 },
+          "effect": { "type": "string", "maxLength": 300 },
+          "sources": { "type": "array", "items": { "type": "integer", "minimum": 1 } }
+        }
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "p30", "p90", "p1y", "confidence", "trigger", "justification"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "name": { "type": "string" },
+          "p30": { "$ref": "#/definitions/prob" },
+          "p90": { "$ref": "#/definitions/prob" },
+          "p1y": { "$ref": "#/definitions/prob" },
+          "confidence": { "type": "integer", "minimum": 1, "maximum": 3 },
+          "trigger": { "type": "string" },
+          "justification": { "type": "string" }
+        }
+      }
+    },
+    "impacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["scenario_id", "eau", "alim", "energie", "sante", "mobilite", "info", "securite"],
+        "properties": {
+          "scenario_id": { "type": "string" },
+          "eau": { "$ref": "#/definitions/sev" },
+          "alim": { "$ref": "#/definitions/sev" },
+          "energie": { "$ref": "#/definitions/sev" },
+          "sante": { "$ref": "#/definitions/sev" },
+          "mobilite": { "$ref": "#/definitions/sev" },
+          "info": { "$ref": "#/definitions/sev" },
+          "securite": { "$ref": "#/definitions/sev" }
+        }
+      }
+    },
+    "indicators": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "current", "up", "down", "status"],
+        "properties": {
+          "name": { "type": "string" },
+          "current": { "type": "string" },
+          "up": { "type": "string" },
+          "down": { "type": "string" },
+          "status": { "type": "string", "enum": ["loin", "approche", "franchi"] }
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["level", "text", "status"],
+        "properties": {
+          "level": { "type": "integer", "minimum": 0, "maximum": 3 },
+          "text": { "type": "string" },
+          "status": { "type": "string", "enum": ["fait", "afaire", "interdit"] },
+          "priority": { "type": "string", "enum": ["urgent", "mois", "plus_tard"] }
+        }
+      }
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["text", "verdict"],
+        "properties": {
+          "text": { "type": "string" },
+          "verdict": { "type": "string", "enum": ["juste", "faux", "indetermine", "nouveau"] },
+          "comment": { "type": "string" },
+          "eval_date": { "type": "string" }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["n", "title"],
+        "properties": {
+          "n": { "type": "integer", "minimum": 1 },
+          "title": { "type": "string" },
+          "publisher": { "type": "string" },
+          "date": { "type": "string" },
+          "url": { "type": "string", "pattern": "^https://" }
+        }
+      }
+    },
+    "caveat": { "type": "string" }
+  },
+  "definitions": {
+    "prob": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["v", "lo", "hi"],
+      "properties": {
+        "v": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "lo": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "hi": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "sev": { "type": "integer", "minimum": 0, "maximum": 3 }
+  }
+}

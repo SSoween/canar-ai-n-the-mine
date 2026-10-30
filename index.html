@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CanarAI-n the Mine</title>
+<meta name="description" content="Suivi des risques systémiques : niveau d'alerte, variations, scénarios.">
+<meta name="theme-color" content="#0e1013">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Veille">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <button id="prev" class="ib" aria-label="Rapport précédent">‹</button>
+  <div class="ttl"><b id="dateLbl">CanarAI-n the Mine</b><small id="posLbl"></small></div>
+  <button id="next" class="ib" aria-label="Rapport suivant">›</button>
+  <button id="addBtn" class="ib" aria-label="Importer un rapport">＋</button>
+  <button id="menuBtn" class="ib" aria-label="Menu">⋯</button>
+</header>
+
+<main id="app"></main>
+
+<dialog id="importDlg">
+  <form method="dialog" class="dlg">
+    <h3>Importer un rapport</h3>
+    <p class="mut">Colle le JSON généré par Claude (les ``` sont ignorés).</p>
+    <textarea id="importTxt" rows="9" placeholder='{"schema":1,"date":"2026-10-30", ...}' spellcheck="false"></textarea>
+    <p id="importErr" class="err" role="alert"></p>
+    <div class="row">
+      <button type="button" id="pasteBtn" class="btn">Coller</button>
+      <button type="button" id="importOk" class="btn pri">Ajouter</button>
+      <button value="cancel" class="btn">Fermer</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="menuDlg">
+  <form method="dialog" class="dlg">
+    <h3>Actions</h3>
+    <button type="button" id="copyCur" class="btn wide">Copier ce rapport (pour le prompt suivant)</button>
+    <button type="button" id="syncBtn" class="btn wide">Synchroniser depuis le dépôt</button>
+    <button type="button" id="sampleBtn" class="btn wide">Charger l'exemple fictif</button>
+    <button type="button" id="delCur" class="btn wide danger">Supprimer ce rapport</button>
+    <button value="cancel" class="btn wide">Fermer</button>
+  </form>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,340 @@
+{
+ "schema": 1,
+ "generator": "exemple fictif",
+ "date": "2026-10-30",
+ "period": "01/10 – 30/10/2026 (EXEMPLE FICTIF)",
+ "config": {
+  "zone": "France / Europe",
+  "situation": "urbain, appartement, famille de 4",
+  "frequence": "mensuel"
+ },
+ "alert": {
+  "level": 1,
+  "label": "JAUNE",
+  "summary": "EXEMPLE FICTIF : des signaux faibles convergent sur l'énergie, rien de confirmé ailleurs.",
+  "change_reason": "Un indicateur énergie approche son seuil et un exercice de crise a été annoncé (données fictives)."
+ },
+ "domains": [
+  {
+   "id": "geo",
+   "name": "Géopolitique",
+   "level": 1,
+   "note": "Tensions diplomatiques stables, aucun nouvel embargo."
+  },
+  {
+   "id": "energie",
+   "name": "Énergie",
+   "level": 2,
+   "note": "Stocks de gaz sous la moyenne saisonnière, prix en hausse modérée."
+  },
+  {
+   "id": "supply",
+   "name": "Chaînes d'appro.",
+   "level": 1,
+   "note": "Délais maritimes légèrement allongés."
+  },
+  {
+   "id": "cyber",
+   "name": "Cyber",
+   "level": 1,
+   "note": "Pas d'attaque majeure sur infrastructures critiques."
+  },
+  {
+   "id": "climat",
+   "name": "Climat",
+   "level": 1,
+   "note": "Épisode sec localisé, rendements dans la norme."
+  },
+  {
+   "id": "sante",
+   "name": "Santé",
+   "level": 0,
+   "note": "Pas d'alerte épidémique."
+  },
+  {
+   "id": "social",
+   "name": "Social & instit.",
+   "level": 1,
+   "note": "Inflation alimentaire stable, mobilisations ponctuelles."
+  },
+  {
+   "id": "prep",
+   "name": "Préparation officielle",
+   "level": 2,
+   "note": "Exercice de crise nationale annoncé pour le trimestre prochain."
+  }
+ ],
+ "top_changes": [
+  {
+   "title": "Stocks de gaz sous la moyenne saisonnière",
+   "strength": "fort",
+   "domain": "Énergie",
+   "fact": "Le taux de remplissage passe de 91 % à 86 % (valeurs fictives). [1]",
+   "mechanism": "Un hiver froid ferait monter la demande plus vite que l'offre, d'où une pression sur les prix.",
+   "effect": "Scénario « tension énergétique hivernale » ▲ à 90 jours.",
+   "sources": [
+    1
+   ]
+  },
+  {
+   "title": "Exercice de crise annoncé",
+   "strength": "faible",
+   "domain": "Préparation officielle",
+   "fact": "Un exercice interministériel est programmé (fictif). [2]",
+   "mechanism": "Les exercices sont réguliers ; seul un changement de ton ou d'ampleur serait informatif.",
+   "effect": "Aucun changement de probabilité, à confirmer.",
+   "sources": [
+    2
+   ]
+  },
+  {
+   "title": "Délais de fret allongés",
+   "strength": "faible",
+   "domain": "Chaînes d'appro.",
+   "fact": "Hausse de quelques jours sur une route (fictif). [3]",
+   "mechanism": "Congestion portuaire temporaire probable, pas de rupture structurelle.",
+   "effect": "Impact marginal sur le scénario logistique.",
+   "sources": [
+    3
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "energie",
+   "name": "Tension énergétique hivernale",
+   "p30": {
+    "v": 8,
+    "lo": 5,
+    "hi": 12
+   },
+   "p90": {
+    "v": 18,
+    "lo": 12,
+    "hi": 26
+   },
+   "p1y": {
+    "v": 22,
+    "lo": 14,
+    "hi": 32
+   },
+   "confidence": 2,
+   "trigger": "Remplissage gaz < 80 % au 1er décembre",
+   "justification": "Stocks plus bas que prévu (~) et hiver incertain (→)."
+  },
+  {
+   "id": "cyber",
+   "name": "Cyberattaque sur infrastructure critique",
+   "p30": {
+    "v": 5,
+    "lo": 3,
+    "hi": 8
+   },
+   "p90": {
+    "v": 12,
+    "lo": 8,
+    "hi": 18
+   },
+   "p1y": {
+    "v": 25,
+    "lo": 15,
+    "hi": 35
+   },
+   "confidence": 1,
+   "trigger": "Attaque revendiquée sur un opérateur d'eau ou d'énergie",
+   "justification": "Peu de données : incertitude élevée."
+  },
+  {
+   "id": "supply",
+   "name": "Rupture logistique maritime",
+   "p30": {
+    "v": 4,
+    "lo": 2,
+    "hi": 7
+   },
+   "p90": {
+    "v": 9,
+    "lo": 5,
+    "hi": 14
+   },
+   "p1y": {
+    "v": 15,
+    "lo": 8,
+    "hi": 24
+   },
+   "confidence": 2,
+   "trigger": "Fermeture d'un détroit > 7 jours",
+   "justification": "Pas de changement structurel."
+  },
+  {
+   "id": "social",
+   "name": "Troubles sociaux liés au coût de la vie",
+   "p30": {
+    "v": 6,
+    "lo": 3,
+    "hi": 10
+   },
+   "p90": {
+    "v": 10,
+    "lo": 6,
+    "hi": 16
+   },
+   "p1y": {
+    "v": 18,
+    "lo": 10,
+    "hi": 28
+   },
+   "confidence": 2,
+   "trigger": "Inflation alimentaire > 8 % sur 3 mois",
+   "justification": "Stable."
+  }
+ ],
+ "impacts": [
+  {
+   "scenario_id": "energie",
+   "eau": 0,
+   "alim": 1,
+   "energie": 3,
+   "sante": 1,
+   "mobilite": 2,
+   "info": 0,
+   "securite": 1
+  },
+  {
+   "scenario_id": "cyber",
+   "eau": 3,
+   "alim": 1,
+   "energie": 3,
+   "sante": 2,
+   "mobilite": 1,
+   "info": 2,
+   "securite": 2
+  },
+  {
+   "scenario_id": "supply",
+   "eau": 0,
+   "alim": 2,
+   "energie": 1,
+   "sante": 2,
+   "mobilite": 2,
+   "info": 0,
+   "securite": 0
+  },
+  {
+   "scenario_id": "social",
+   "eau": 0,
+   "alim": 1,
+   "energie": 0,
+   "sante": 0,
+   "mobilite": 2,
+   "info": 1,
+   "securite": 2
+  }
+ ],
+ "indicators": [
+  {
+   "name": "Remplissage stocks de gaz (UE)",
+   "current": "86 %",
+   "up": "< 80 % au 1er déc.",
+   "down": "> 92 %",
+   "status": "approche"
+  },
+  {
+   "name": "Inflation alimentaire (glissement 3 mois)",
+   "current": "4,1 %",
+   "up": "> 8 %",
+   "down": "< 3 %",
+   "status": "loin"
+  },
+  {
+   "name": "Incidents cyber majeurs / mois",
+   "current": "0",
+   "up": "≥ 2",
+   "down": "0 pendant 3 mois",
+   "status": "loin"
+  },
+  {
+   "name": "Délai fret Asie–Europe",
+   "current": "+4 j",
+   "up": "+15 j",
+   "down": "retour à la normale",
+   "status": "loin"
+  }
+ ],
+ "actions": [
+  {
+   "level": 0,
+   "text": "Garder 3 jours d'eau et de produits de base",
+   "status": "fait",
+   "priority": "mois"
+  },
+  {
+   "level": 1,
+   "text": "Vérifier la trousse de secours et les médicaments essentiels",
+   "status": "fait",
+   "priority": "mois"
+  },
+  {
+   "level": 1,
+   "text": "Constituer une réserve de 7 jours de nourriture non périssable",
+   "status": "afaire",
+   "priority": "mois"
+  },
+  {
+   "level": 1,
+   "text": "Ne pas stocker de carburant en quantité",
+   "status": "interdit"
+  },
+  {
+   "level": 2,
+   "text": "Prévoir une source d'éclairage et de chauffage de secours sûre",
+   "status": "afaire",
+   "priority": "plus_tard"
+  },
+  {
+   "level": 2,
+   "text": "Imprimer les numéros utiles et un plan du quartier",
+   "status": "afaire",
+   "priority": "plus_tard"
+  }
+ ],
+ "hypotheses": [
+  {
+   "text": "Les stocks de gaz resteront au-dessus de 85 % en novembre",
+   "verdict": "nouveau",
+   "comment": "",
+   "eval_date": "2026-11-30"
+  },
+  {
+   "text": "Aucune cyberattaque majeure en octobre",
+   "verdict": "juste",
+   "comment": "Vérifié sur sources institutionnelles (fictif)."
+  },
+  {
+   "text": "L'inflation alimentaire repassera sous 4 %",
+   "verdict": "faux",
+   "comment": "4,1 % observé."
+  }
+ ],
+ "sources": [
+  {
+   "n": 1,
+   "title": "Exemple : statistiques de remplissage des stocks",
+   "publisher": "Source fictive",
+   "date": "2026-10-28"
+  },
+  {
+   "n": 2,
+   "title": "Exemple : annonce d'exercice interministériel",
+   "publisher": "Source fictive",
+   "date": "2026-10-15"
+  },
+  {
+   "n": 3,
+   "title": "Exemple : indice de fret",
+   "publisher": "Source fictive",
+   "date": "2026-10-25"
+  }
+ ],
+ "caveat": "Ceci est un exemple fictif : toutes les valeurs servent à tester l'affichage."
+}
