@@ -173,7 +173,7 @@ function impactLegend() {
 function hero(cur, prev) {
   const lv = Math.max(0, Math.min(4, cur.alert.level | 0));
   const d = h('div', `hero l${lv}`);
-  d.style.background = lc(lv);
+  d.style.setProperty('--lv', lc(lv)); // la couleur du niveau éclaire la carte (voir .hero dans style.css)
   add(d, h('div', 'lv', `${LV[lv].k} · ${cur.alert.label || LV[lv].n}`));
   let line;
   if (!prev) line = '🆕 rapport de référence';
