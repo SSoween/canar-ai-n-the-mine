@@ -17,6 +17,8 @@ const HZ = [['p30', '30 j'], ['p90', '90 j'], ['p1y', '1 an']];
 
 let reports = [];
 let idx = -1;
+let DOOM = null; // repère annuel Doomsday Clock (data/doomsday.json), mis à jour à la main chaque fin janvier
+const DOOM_KEY = 'riskwatch.doomsday.v1';
 
 /* ---------- utilitaires ---------- */
 const $ = s => document.querySelector(s);
@@ -118,7 +120,7 @@ function render() {
   $('#dateLbl').textContent = fmtDate(cur.date);
   $('#posLbl').textContent = `${idx + 1} / ${reports.length}` + (prev ? ` · vs ${fmtDate(prev.date)}` : ' · référence');
 
-  app.append(hero(cur, prev));
+  app.append(topBand(cur, prev));
   app.append(heatCard(cur, prev));
   app.append(topChanges(cur, prev));
   app.append(scenariosSec(cur, prev));
@@ -167,6 +169,57 @@ function impactLegend() {
   add(it, sq, document.createTextNode('changement depuis la veille')); box.append(it);
   const none = h('span', null, '– aucun impact'); box.append(none);
   return box;
+}
+
+/* --- bandeau du haut : niveau d'alerte (2/3) + repère Doomsday Clock (1/3) --- */
+function topBand(cur, prev) {
+  const hb = hero(cur, prev);
+  if (!DOOM) return hb;                       // pas de fichier doomsday.json : bandeau pleine largeur
+  return add(h('div', 'topband'), hb, doomCard(DOOM));
+}
+function validDoom(d) {
+  return d && typeof d.seconds === 'number' && d.seconds > 0 && typeof d.date === 'string' ? d : null;
+}
+function clockSvg(sec) {
+  // Cadran générique (pas le logo officiel) : aiguilles placées à « sec » secondes avant minuit
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const svg = el('svg', { viewBox: '0 0 100 100', class: 'dc-svg', 'aria-hidden': 'true' });
+  const defs = el('defs', {}), gr = el('linearGradient', { id: 'dcg', x1: '0', y1: '1', x2: '1', y2: '0' });
+  [['0', '#F0C419'], ['.6', '#FF9A3C'], ['1', '#FF5A5A']].forEach(([o, c]) => gr.append(el('stop', { offset: o, 'stop-color': c })));
+  defs.append(gr); svg.append(defs);
+  const R = 44, pt = (deg, r) => [50 + r * Math.sin(deg * Math.PI / 180), 50 - r * Math.cos(deg * Math.PI / 180)];
+  svg.append(el('circle', { cx: 50, cy: 50, r: R, fill: 'var(--void)', stroke: 'var(--line-2)', 'stroke-width': 1.5 }));
+  const [x0, y0] = pt(-90, R);   // zone des 15 dernières minutes
+  svg.append(el('path', { d: `M${x0} ${y0} A${R} ${R} 0 0 1 50 ${50 - R}`, stroke: 'url(#dcg)', 'stroke-width': 5, fill: 'none', 'stroke-linecap': 'round' }));
+  for (let hr = 0; hr < 12; hr++) {
+    const big = hr % 3 === 0, [a, b] = pt(hr * 30, R - 4), [c, d] = pt(hr * 30, R - (big ? 11 : 8));
+    svg.append(el('line', { x1: a, y1: b, x2: c, y2: d, stroke: 'var(--ink)', 'stroke-opacity': big ? .9 : .5, 'stroke-width': big ? 2.4 : 1.4, 'stroke-linecap': 'round' }));
+  }
+  const [hx, hy] = pt(-sec / 43200 * 360, R - 22), [mx, my] = pt(-sec / 3600 * 360, R - 10);
+  svg.append(el('line', { x1: 50, y1: 50, x2: hx, y2: hy, stroke: 'var(--ink)', 'stroke-width': 4, 'stroke-linecap': 'round' }));
+  svg.append(el('line', { x1: 50, y1: 50, x2: mx, y2: my, stroke: 'var(--gold)', 'stroke-width': 2.6, 'stroke-linecap': 'round' }));
+  svg.append(el('circle', { cx: 50, cy: 50, r: 3.6, fill: 'var(--gold)' }));
+  return svg;
+}
+function doomCard(dm) {
+  const sec = dm.seconds;
+  const val = sec < 180 ? `${sec} s` : `${Math.round(sec / 60)} min`;
+  const c = h('div', 'dclock');
+  c.title = 'Doomsday Clock — ' + (dm.source || 'Bulletin of the Atomic Scientists');
+  add(c, h('span', 'eb', 'Doomsday Clock'), clockSvg(sec), h('span', 'v', val), h('span', 'u', 'avant minuit'));
+  if (typeof dm.previous === 'number') {
+    const dl = dm.previous - sec, py = dm.previous_year ? `${dm.previous_year} : ` : 'avant : ';
+    const txt = dl > 0 ? `▲ ${dl} s plus près` : dl < 0 ? `▼ ${-dl} s plus loin` : '► inchangée';
+    add(c, h('span', 'd ' + (dl > 0 ? 'up' : dl < 0 ? 'down' : 'flat'), `${txt} (${py}${dm.previous} s)`));
+  }
+  const src = h('span', 's');
+  const lab = `${dm.source || 'Bulletin of the Atomic Scientists'} · ${fmtDate(dm.date)}`;
+  if (typeof dm.url === 'string' && /^https:\/\//i.test(dm.url)) {
+    const a = h('a', null, lab); a.href = dm.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; src.append(a);
+  } else src.textContent = lab;
+  add(c, src, h('span', 's', 'Repère annuel, mondial'));
+  return c;
 }
 
 /* --- en-tête --- */
@@ -448,6 +501,7 @@ async function loadSample() {
 /* ---------- événements ---------- */
 function init() {
   reports = load();
+  try { DOOM = validDoom(JSON.parse(localStorage.getItem(DOOM_KEY) || 'null')); } catch (e) { DOOM = null; }
   idx = reports.length - 1;
   $('#prev').onclick = () => { if (idx > 0) { idx--; render(); window.scrollTo(0, 0); } };
   $('#next').onclick = () => { if (idx < reports.length - 1) { idx++; render(); window.scrollTo(0, 0); } };
@@ -489,6 +543,15 @@ function init() {
       .then(reg => reg.update()).catch(() => { /* hors-ligne indisponible */ });
   }
   // Synchro silencieuse au lancement si le dépôt expose data/index.json
+  // Repère Doomsday Clock (facultatif) : affiché si data/doomsday.json existe et est valide
+  fetchJson('data/doomsday.json').then(d => {
+    const v = validDoom(d);
+    if (JSON.stringify(v) !== JSON.stringify(DOOM)) {
+      DOOM = v;
+      try { localStorage.setItem(DOOM_KEY, JSON.stringify(v)); } catch (e) { /* stockage indisponible */ }
+      render();
+    }
+  }).catch(() => { /* pas de fichier : bandeau pleine largeur */ });
   pullFromRepo().then(n => {
     if (n) { idx = reports.length - 1; render(); }
   }).catch(() => { /* pas de dépôt de données : mode import manuel */ });

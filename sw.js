@@ -2,7 +2,7 @@
 // - Le pré-chargement contourne le cache HTTP du navigateur ({cache:'reload'}).
 // - Il est TOLÉRANT : un fichier manquant (ex. une icône) n'empêche plus l'installation.
 //   Avant, une seule absence bloquait toute mise à jour et l'ancienne version restait aux commandes.
-const VERSION = 'v8'; // à incrémenter à chaque modification des fichiers de l'app
+const VERSION = 'v9'; // à incrémenter à chaque modification des fichiers de l'app
 const CORE = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest'];
 const EXTRA = ['icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
 
