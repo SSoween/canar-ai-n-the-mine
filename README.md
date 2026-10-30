@@ -70,6 +70,10 @@ If an AI agent operates your server, `janus/PROMPTS-JANUS.md` contains ready-to-
 - On the phone, the PWA keeps the last 180 reports (about 6 months) and downloads only the new ones. The full history stays in `data/`.
 - On the server, snapshots and intermediate files older than `KEEP_DAYS` are deleted by `run.sh`. Published reports are never deleted.
 
+### Doomsday Clock (yearly reference)
+The top banner shows, next to your alert level, the Doomsday Clock of the Bulletin of the Atomic Scientists: a global, yearly reference, not part of the daily report.
+It comes from `data/doomsday.json`, which you update **by hand once a year** (late January, when the Bulletin announces the new time): `seconds`, `previous`, `previous_year`, `date`. Delete the file to hide the card.
+
 ### Sources
 `janus/sources.json` is the heart of the report: **the model only knows what these sources say.**
 The provided list (about 40 entries) is tuned for a world view with a Canada / Québec focus. It favours institutions that publish dated, measurable facts: central bank, statistics agency, energy agencies, cyber centres, public health, civil protection, the UN, the FAO and the WHO. A few media and state-affiliated outlets are included for the Middle East, flagged so the model weighs them accordingly.
@@ -100,6 +104,7 @@ Each entry has these fields:
 index.html · style.css · app.js · manifest.webmanifest · sw.js · icons/   PWA
 schema.json                     report format (generation, validation, PWA)
 data/index.json, data/*.json    published reports (read by the PWA)
+data/doomsday.json              yearly Doomsday Clock reference (edited by hand)
 janus/sources.json              your validated sources
 janus/fetch_sources.py          step 0: dated snapshot
 janus/prompts/extract.txt       step 1 prompt: fact extraction
@@ -182,6 +187,10 @@ Si un agent IA administre ton serveur, `janus/PROMPTS-JANUS.md` contient des pro
 - Sur le téléphone, la PWA garde les 180 derniers rapports (environ 6 mois) et ne télécharge que les nouveaux. L'historique complet reste dans `data/`.
 - Sur le serveur, `run.sh` supprime les instantanés et fichiers intermédiaires plus vieux que `KEEP_DAYS`. Les rapports publiés ne sont jamais supprimés.
 
+### Doomsday Clock (repère annuel)
+Le bandeau du haut affiche, à côté de ton niveau d'alerte, la Doomsday Clock du Bulletin of the Atomic Scientists : un repère mondial et annuel, qui ne fait pas partie du rapport quotidien.
+Elle vient de `data/doomsday.json`, à mettre à jour **à la main une fois par an** (fin janvier, à l'annonce du Bulletin) : `seconds`, `previous`, `previous_year`, `date`. Supprime le fichier pour masquer la carte.
+
 ### Sources
 `janus/sources.json` est le cœur du rapport : **le modèle ne sait que ce que disent ces sources.**
 La liste fournie (une quarantaine d'entrées) est réglée pour une vue mondiale avec un focus Canada / Québec. Elle privilégie les institutions qui publient des faits datés et mesurables : banque centrale, institut de statistique, agences de l'énergie, centres cyber, santé publique, sécurité civile, ONU, FAO et OMS. Quelques médias et agences affiliées à des États couvrent le Moyen-Orient ; ils sont signalés pour que le modèle en tienne compte.
@@ -212,6 +221,7 @@ Chaque entrée contient ces champs :
 index.html · style.css · app.js · manifest.webmanifest · sw.js · icons/   PWA
 schema.json                     format du rapport (génération, validation, PWA)
 data/index.json, data/*.json    rapports publiés (lus par la PWA)
+data/doomsday.json              repère annuel Doomsday Clock (modifié à la main)
 janus/sources.json              tes sources validées
 janus/fetch_sources.py          étape 0 : instantané daté
 janus/prompts/extract.txt       prompt de l'étape 1 : extraction des faits
