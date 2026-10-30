@@ -35,7 +35,8 @@ Tasks:
      export JANUS_CTX_CHARS=24000
      export ZONE="Monde, focus Canada / Québec"
      export SITUATION="urbain, maison, famille"
-     export FREQ="mensuel"
+     export FREQ="quotidien"
+     export KEEP_DAYS=30
 6. Test that my LLM server supports structured output: send ONE small request to
    $JANUS_ENDPOINT/chat/completions with response_format = {"type":"json_schema","json_schema":
    {"name":"t","strict":true,"schema":{"type":"object","properties":{"ok":{"type":"boolean"}},
@@ -66,25 +67,29 @@ Then list the domains whose "note" differs from the previous report although not
 (stability problem). Do not edit the report by hand.
 ```
 
-## Prompt 3 : publication et planification mensuelle
+## Prompt 3 : publication et planification quotidienne
 
 ```text
 If the last check-only validation passed:
 1. Publish it: ../.venv/bin/python publish.py out/<today>.json --repo .. --git
-2. Install a monthly cron job for my user (not root) that runs on the 1st of each month at 05:40:
-     40 5 1 * * . $HOME/.config/canar/env && cd $HOME/canar-ai-n-the-mine && git pull -q && \
+2. Install a DAILY cron job for my user (not root) that runs every day at 05:40:
+     40 5 * * * . $HOME/.config/canar/env && cd $HOME/canar-ai-n-the-mine && git pull -q && \
        cd janus && PATH=$HOME/canar-ai-n-the-mine/.venv/bin:$PATH ./run.sh >> run.log 2>&1
    Show me the crontab line before adding it.
-3. Make run.log rotate (keep the last 12 runs) using logrotate in user mode or a simple size check,
-   without sudo.
-4. Tell me how I will notice a failed run (exit code + last lines of run.log). Propose, but do not
+3. Measure how long one full run takes. If it exceeds 3 hours, tell me before enabling the job
+   (risk of overlapping runs or of a report published too late in the morning).
+4. Prevent overlapping runs: wrap the command with flock (e.g. flock -n /tmp/canar.lock ...).
+5. Make run.log rotate (keep the last 30 days) using logrotate in user mode or a simple size check,
+   without sudo. run.sh already deletes snapshots and out/ files older than KEEP_DAYS (30 days):
+   confirm with me that this retention is fine.
+6. Tell me how I will notice a failed run (exit code + last lines of run.log). Propose, but do not
    install, a notification option that works on my network.
 ```
 
 ## Prompt 4 : diagnostic après un échec
 
 ```text
-The monthly run failed or produced an odd report. Read the last 200 lines of
+The daily run failed or produced an odd report. Read the last 200 lines of
 ~/canar-ai-n-the-mine/janus/run.log and tell me:
 - which step failed (fetch / extract / synthesize / validate / git push) and why;
 - for validation errors, which field and which rule (schema or coherence check);
@@ -94,14 +99,15 @@ If a source keeps failing, propose a replacement from the same institution, test
 fetch_sources.py, and show me the change to sources.json (append at the END only, never reorder).
 ```
 
-## Prompt 5 : maintenance trimestrielle
+## Prompt 5 : bilan mensuel
 
 ```text
-Quarterly review of the canar-ai-n-the-mine pipeline:
-1. Re-run fetch_sources.py and list sources that failed in at least 2 of the last 3 snapshots.
+Monthly review of the canar-ai-n-the-mine pipeline (daily runs):
+1. List sources that failed in more than 20% of the snapshots of the last 30 days.
 2. For each domain (geo, energie, supply, cyber, climat, sante, social, prep), count how many
-   facts were extracted over the last 3 reports. Flag domains with 0-2 facts: they need a better source.
-3. Compare the hypotheses of the last 3 reports with their verdicts (juste / faux / indetermine)
-   and give me the share of each.
-4. Suggest at most 3 changes (sources or settings), with the reason. Apply nothing without my OK.
+   facts were extracted over the last 30 reports. Flag domains with fewer than 10 facts: they need a better source.
+3. Stability check: over the last 30 reports, count the days where a domain note or a scenario
+   probability changed WITHOUT any new top_change. Many such days = the model is drifting; tell me.
+4. For hypotheses whose eval_date has passed, give the share of juste / faux / indetermine.
+5. Suggest at most 3 changes (sources or settings), with the reason. Apply nothing without my OK.
 ```
