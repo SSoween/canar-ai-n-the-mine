@@ -1,0 +1,9 @@
+{
+ "_comment": "Repère annuel Doomsday Clock (Bulletin of the Atomic Scientists). À mettre à jour à la main chaque fin janvier : seconds = nouvelle valeur, previous = ancienne, previous_year = année de l'ancienne, date = date de l'annonce.",
+ "seconds": 85,
+ "previous": 89,
+ "previous_year": 2025,
+ "date": "2026-01-27",
+ "source": "Bulletin of the Atomic Scientists",
+ "url": "https://thebulletin.org/doomsday-clock/"
+}
