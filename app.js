@@ -3,6 +3,7 @@
    Tout le texte est inséré via textContent (pas d'innerHTML) : un JSON collé ne peut pas injecter de code. */
 
 const KEY = 'riskwatch.reports.v1';
+const MAX_STORED = 180; // rythme quotidien : ~6 mois gardés sur le téléphone (l'historique complet reste dans le dépôt)
 const LV = [
   { k: 'N0', n: 'VERT', t: 'Routine' },
   { k: 'N1', n: 'JAUNE', t: 'Veille renforcée' },
@@ -51,6 +52,7 @@ function load() {
   } catch (e) { return []; }
 }
 function persist() {
+  if (reports.length > MAX_STORED) { reports = reports.slice(-MAX_STORED); idx = Math.min(idx, reports.length - 1); }
   try { localStorage.setItem(KEY, JSON.stringify(reports)); }
   catch (e) { toast('Stockage local indisponible : rapports gardés en mémoire seulement'); }
 }
@@ -364,16 +366,26 @@ async function fetchJson(url) {
   if (!r.ok) throw new Error(url + ' → ' + r.status);
   return r.json();
 }
+/* Synchro incrémentale : ne télécharge que les rapports absents du téléphone (+ le plus récent,
+   au cas où il aurait été régénéré dans la journée). Limitée aux MAX_STORED derniers fichiers. */
+async function pullFromRepo() {
+  const list = await fetchJson('data/index.json');
+  if (!Array.isArray(list)) throw new Error('data/index.json doit être une liste de fichiers.');
+  const files = list.filter(f => typeof f === 'string' && /^[\w.-]+\.json$/.test(f) && !/^sample-/.test(f))
+    .sort().slice(-MAX_STORED);
+  const have = new Set(reports.map(r => r.date + '.json'));
+  const latest = files[files.length - 1];
+  let n = 0;
+  for (const f of files) {
+    if (have.has(f) && f !== latest) continue;
+    try { addReport(parseReport(JSON.stringify(await fetchJson('data/' + f))), true); n++; } catch (e) { /* fichier ignoré */ }
+  }
+  return n;
+}
 async function syncRepo() {
   try {
-    const list = await fetchJson('data/index.json');
-    if (!Array.isArray(list)) throw new Error('data/index.json doit être une liste de fichiers.');
-    let n = 0;
-    for (const f of list) {
-      if (typeof f !== 'string' || !/^[\w.-]+\.json$/.test(f)) continue;
-      try { addReport(parseReport(JSON.stringify(await fetchJson('data/' + f))), true); n++; } catch (e) { /* fichier ignoré */ }
-    }
-    render(); toast(`${n} rapport(s) synchronisé(s)`);
+    const n = await pullFromRepo();
+    idx = reports.length - 1; render(); toast(`${n} rapport(s) synchronisé(s)`);
   } catch (e) { toast('Synchro impossible : ' + e.message); }
 }
 async function loadSample() {
@@ -419,12 +431,7 @@ function init() {
     navigator.serviceWorker.register('sw.js').catch(() => { /* hors-ligne indisponible */ });
   }
   // Synchro silencieuse au lancement si le dépôt expose data/index.json
-  fetchJson('data/index.json').then(async list => {
-    let n = 0;
-    for (const f of Array.isArray(list) ? list : []) {
-      if (typeof f !== 'string' || !/^[\w.-]+\.json$/.test(f) || /^sample-/.test(f)) continue;
-      try { addReport(parseReport(JSON.stringify(await fetchJson('data/' + f))), true); n++; } catch (e) { /* ignoré */ }
-    }
+  pullFromRepo().then(n => {
     if (n) { idx = reports.length - 1; render(); }
   }).catch(() => { /* pas de dépôt de données : mode import manuel */ });
 }
