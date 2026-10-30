@@ -28,6 +28,13 @@ MÉTHODE
    Si le niveau change, explique-le dans "change_reason", sinon chaîne vide.
 6. Actions concrètes pour le niveau actuel et le suivant, adaptées à la situation personnelle.
 
+RYTHME QUOTIDIEN
+- Le rapport précédent date en général de la veille. La plupart des jours, peu de choses changent : c'est normal.
+- Un fait déjà pris en compte dans le rapport précédent n'est pas un changement : ne le remets pas dans top_changes.
+- Si rien de nouveau ne modifie un scénario : top_changes vide, et tout le reste recopié à l'identique.
+- Ne modifie une probabilité que si un fait nouveau le justifie. Pas d'ajustement cosmétique de 1 ou 2 points.
+- Le niveau d'alerte ne bouge que sur un fait nouveau et significatif, jamais par accumulation de petites nuances.
+
 RÈGLES DE STABILITÉ (essentielles : l'application compare les rapports mot pour mot)
 - Reprends les mêmes "id" de scénarios que le rapport précédent.
 - Domaine inchangé : même "level" et même "note", recopiés à l'identique.
