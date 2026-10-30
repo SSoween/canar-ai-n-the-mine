@@ -1,0 +1,24 @@
+{
+  "_comment": "Sources recommandées (monde, focus Canada/Québec). verifie=true : testé le 2026-10-30 sans JavaScript. verifie=false : à confirmer au premier run de fetch_sources.py. L'ordre fixe les numéros [n] : ajoute les nouvelles sources à la FIN, ne réordonne jamais.",
+  "sources": [
+    { "id": "un-news", "title": "UN News", "publisher": "Nations Unies", "url": "https://news.un.org/en/news", "domains": ["geo", "climat", "sante"], "verifie": true },
+    { "id": "pmo-news", "title": "Nouvelles du premier ministre (RSS)", "publisher": "Cabinet du premier ministre du Canada", "url": "https://www.pm.gc.ca/en/news.rss", "domains": ["prep", "geo"], "verifie": true },
+    { "id": "gc-publicsafety", "title": "Communiqués de Sécurité publique Canada (Atom)", "publisher": "Gouvernement du Canada", "url": "https://api.io.canada.ca/io-server/gc/news/en/v2?dept=publicsafetycanada&type=newsreleases&sort=publishedDate&orderBy=desc&pick=30&format=atom", "domains": ["prep", "cyber"], "verifie": true },
+    { "id": "cccs-alerts", "title": "Alertes et avis", "publisher": "Centre canadien pour la cybersécurité", "url": "https://www.cyber.gc.ca/en/alerts-advisories", "domains": ["cyber"], "verifie": true },
+    { "id": "boc-press", "title": "Communiqués de presse", "publisher": "Banque du Canada", "url": "https://www.bankofcanada.ca/press/press-releases/", "domains": ["social", "energie"], "verifie": true },
+    { "id": "statcan-daily", "title": "Le Quotidien", "publisher": "Statistique Canada", "url": "https://www150.statcan.gc.ca/n1/dai-quo/index-eng.htm", "domains": ["social", "supply"], "verifie": true },
+    { "id": "eia-wpsr", "title": "Weekly Petroleum Status Report", "publisher": "U.S. Energy Information Administration", "url": "https://www.eia.gov/petroleum/supply/weekly/", "domains": ["energie", "supply"], "verifie": true },
+    { "id": "eia-heating", "title": "Heating Oil and Propane Update (oct.–mars)", "publisher": "U.S. Energy Information Administration", "url": "https://www.eia.gov/petroleum/heatingoilpropane/", "domains": ["energie"], "verifie": true },
+    { "id": "hydroquebec-news", "title": "Salle de nouvelles (RSS)", "publisher": "Hydro-Québec", "url": "https://news.hydroquebec.com/news/rss/5/salle-de-nouvelles", "domains": ["energie", "climat"], "verifie": true },
+    { "id": "gc-nrcan", "title": "Communiqués de Ressources naturelles Canada (Atom)", "publisher": "Gouvernement du Canada", "url": "https://api.io.canada.ca/io-server/gc/news/en/v2?dept=naturalresourcescanada&sort=publishedDate&orderBy=desc&pick=30&format=atom", "domains": ["energie"], "verifie": true },
+    { "id": "iea-press", "title": "Communiqués de presse", "publisher": "Agence internationale de l'énergie", "url": "https://www.iea.org/news?type=press-release", "domains": ["energie", "prep"], "verifie": true },
+    { "id": "fao-ffpi", "title": "Indice FAO des prix des produits alimentaires", "publisher": "FAO", "url": "https://www.fao.org/worldfoodsituation/foodpricesindex/en/", "domains": ["supply", "social"], "verifie": true },
+    { "id": "drought-monitor", "title": "Moniteur des sécheresses au Canada", "publisher": "Agriculture et Agroalimentaire Canada", "url": "https://agriculture.canada.ca/en/agricultural-production/weather/canadian-drought-monitor", "domains": ["climat"], "verifie": true },
+    { "id": "who-don", "title": "Disease Outbreak News (API)", "publisher": "Organisation mondiale de la santé", "url": "https://www.who.int/api/news/diseaseoutbreaknews?sf_culture=en&$orderby=PublicationDateAndTime%20desc&$top=10", "domains": ["sante"], "verifie": true },
+    { "id": "gc-phac", "title": "Communiqués de l'Agence de la santé publique (Atom)", "publisher": "Gouvernement du Canada", "url": "https://api.io.canada.ca/io-server/gc/news/en/v2?dept=publichealthagencyofcanada&sort=publishedDate&orderBy=desc&pick=30&format=atom", "domains": ["sante"], "verifie": true },
+    { "id": "quebec-news", "title": "Nouvelles du gouvernement du Québec", "publisher": "Gouvernement du Québec", "url": "https://www.quebec.ca/nouvelles/rechercher", "domains": ["prep", "climat", "social"], "verifie": true },
+    { "id": "eu-commission-news", "title": "News (dont préparation et protection civile)", "publisher": "Commission européenne", "url": "https://commission.europa.eu/news-and-media/news_en", "domains": ["prep", "geo"], "verifie": true },
+    { "id": "aljazeera-rss", "title": "Al Jazeera, fil général (RSS)", "publisher": "Al Jazeera", "url": "https://www.aljazeera.com/xml/rss/all.xml", "domains": ["geo", "energie"], "verifie": false },
+    { "id": "cbc-world-rss", "title": "CBC World (RSS)", "publisher": "CBC News", "url": "https://www.cbc.ca/webfeed/rss/rss-world", "domains": ["geo", "social"], "verifie": false }
+  ]
+}
