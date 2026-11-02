@@ -6,7 +6,7 @@
  "config": {
   "zone": "Monde, focus Canada / Québec",
   "situation": "urbain, maison, famille",
-  "frequence": "mensuel"
+  "frequence": "quotidien"
  },
  "alert": {
   "level": 2,
