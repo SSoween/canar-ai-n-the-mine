@@ -61,7 +61,7 @@ It uses a 5-level alert scale: N0 green to N4 black.
    ```cron
    40 5 * * * . $HOME/.config/canar/env && cd $HOME/canar-ai-n-the-mine && git pull -q && cd janus && ./run_canari.sh >> run.log 2>&1
    ```
-If an AI agent operates your server, `janus/PROMPTS-JANUS.md` contains ready-to-use operator prompts for setup, first run, scheduling, troubleshooting and the monthly review.
+If an AI agent operates your server, it works from two files: `AGENTS.md` (its permanent rules) and `janus/TASKS.md` (the ordered task list, each with a status). A session then needs a single instruction: *pull the repo, read AGENTS.md and janus/TASKS.md, do the next task marked "ready"*. Only you mark a task `ready`.
 
 ### Daily rhythm
 - Each report is compared with the **previous day's** report. On most days little changes, and the PWA shows mostly « = IDEM »: that is the expected result, not a bug.
@@ -113,7 +113,8 @@ janus/generate.py               steps 1–2 against the local LLM
 janus/publish.py                step 3: validation, data/, git push
 janus/run.sh                    full chain (expects the LLM server to be up)
 janus/run_canari.sh             daily entry point: switch to "canari" mode, run, restore previous mode
-janus/PROMPTS-JANUS.md          operator prompts for an AI agent on the server
+AGENTS.md                       rules for the AI agent that operates the server
+janus/TASKS.md                  ordered tasks for that agent, with status
 ```
 After changing any PWA file, bump `VERSION` in `sw.js` so phones refresh their cache.
 
@@ -178,7 +179,7 @@ Il utilise une échelle d'alerte à 5 niveaux, de N0 vert à N4 noir.
    ```cron
    40 5 * * * . $HOME/.config/canar/env && cd $HOME/canar-ai-n-the-mine && git pull -q && cd janus && ./run_canari.sh >> run.log 2>&1
    ```
-Si un agent IA administre ton serveur, `janus/PROMPTS-JANUS.md` contient des prompts prêts à l'emploi pour l'installation, le premier lancement, la planification, le diagnostic et le bilan mensuel.
+Si un agent IA administre ton serveur, il travaille à partir de deux fichiers : `AGENTS.md` (ses règles permanentes) et `janus/TASKS.md` (la liste ordonnée des tâches, chacune avec un statut). Une séance tient alors en une instruction : *récupère le dépôt, lis AGENTS.md et janus/TASKS.md, fais la prochaine tâche marquée « ready »*. Toi seul passes une tâche en `ready`.
 
 ### Rythme quotidien
 - Chaque rapport est comparé à celui de **la veille**. La plupart des jours, peu de choses changent et la PWA affiche surtout « = IDEM » : c'est le résultat attendu, pas une panne.
@@ -230,7 +231,8 @@ janus/generate.py               étapes 1–2 avec le LLM local
 janus/publish.py                étape 3 : validation, data/, git push
 janus/run.sh                    chaîne complète (suppose le serveur LLM démarré)
 janus/run_canari.sh             point d'entrée quotidien : mode « canari », veille, retour au mode précédent
-janus/PROMPTS-JANUS.md          prompts opérateur pour un agent IA sur le serveur
+AGENTS.md                       règles de l'agent IA qui administre le serveur
+janus/TASKS.md                  tâches ordonnées de cet agent, avec statut
 ```
 Après toute modification d'un fichier de la PWA, incrémente `VERSION` dans `sw.js` pour que les téléphones rafraîchissent leur cache.
 
