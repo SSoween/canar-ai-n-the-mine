@@ -9,16 +9,21 @@ Chain: `janus/sources.json` → `janus/fetch_sources.py` → `janus/generate.py`
 `janus/prompts/`, output forced by `schema.json`) → `janus/publish.py` (validate, write `data/`, git push) → PWA.
 The README explains everything in detail.
 
-## Environment on this server
-| Item | Location |
+## Where you run (confirmed 2026-11-04)
+You run **inside an isolated container**: no docker, no GPU, no `~/ai-server`. You can use git (your own clone
+and your own deploy key), Python, and the internet. You **cannot** switch AI server modes or run the LLM pipeline.
+Everything that needs the host (setup, generation, cron) is an **H task done by the owner**; never attempt it,
+never ask for access to the host's docker socket. Your tasks are the **A tasks** in `janus/TASKS.md`.
+
+## Environment on the HOST (for reference when you review or diagnose)
+| Item | Location on the host |
 |---|---|
-| Repository clone | `~/canar-ai-n-the-mine` |
-| Python virtual env | `~/canar-ai-n-the-mine/.venv` |
+| Repository clone | `~/canar-ai-n-the-mine` (+ `.venv`) |
 | Settings (never committed) | `~/.config/canar/env` (chmod 600) |
 | AI server mode switch | `~/ai-server/switch_mode.sh {rag|dev-single|dev-split|dev-long|mixed|canari|status|current}` |
-| Compose files | `~/ai-server/compose/` (the "canari" mode uses `canari.yml`: Qwen, 32K context, GPU 0+1, port 8080) |
+| Compose files | `~/ai-server/compose/` (`canari.yml`: Qwen, 32K context, GPU 0+1, port 8080) |
 | Daily entry point | `janus/run_canari.sh` (switch to canari → `run.sh` → restore previous mode) |
-| LLM endpoint (canari mode only) | `http://127.0.0.1:8080/v1` |
+| Host setup script | `janus/setup_host.sh` (run by the owner) |
 
 ## How to work
 1. `git pull` first. Read `janus/TASKS.md` and work ONLY on the first task whose status is `ready`.
@@ -47,7 +52,7 @@ The README explains everything in detail.
   (`switch_mode.sh current` tells you the active mode before you switch).
 - The daily cron job only runs `janus/run_canari.sh`. It must never read or act on this file or on `TASKS.md`.
 
-## Useful commands
+## Useful commands (they run on the HOST; in your container only `fetch_sources.py` and `publish.py --check-only` work)
 ```bash
 source ~/.config/canar/env && cd ~/canar-ai-n-the-mine/janus
 ../.venv/bin/python fetch_sources.py --sources sources.json --out snapshots
