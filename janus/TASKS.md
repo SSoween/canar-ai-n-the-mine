@@ -7,7 +7,7 @@ Only the owner changes a status from `todo` to `ready`. The agent may propose `r
 | ID | Task | Status |
 |---|---|---|
 | T1 | Initial setup on the server | done (steps 1–8; report not reviewed yet) |
-| T2 | Repository hygiene | ready |
+| T2 | Repository hygiene | done |
 | T3 | First local report, NOT published | ready |
 | T4 | Publish and schedule the daily run | todo |
 | T5 | Diagnose a failed or odd run | recurring |
