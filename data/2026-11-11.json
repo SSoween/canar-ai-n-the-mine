@@ -1,0 +1,744 @@
+{
+ "schema": 1,
+ "generator": "claude",
+ "date": "2026-11-11",
+ "period": "5 – 11 novembre 2026",
+ "config": {
+  "zone": "Monde, focus Canada / Québec",
+  "situation": "urbain, maison, famille",
+  "frequence": "quotidien"
+ },
+ "alert": {
+  "level": 2,
+  "label": "ORANGE",
+  "summary": "Crise énergétique mondiale en cours (Ormuz quasi fermé depuis février) ; au Québec, l'effet reste un choc de prix, pas une rupture d'approvisionnement.",
+  "change_reason": ""
+ },
+ "domains": [
+  {
+   "id": "geo",
+   "name": "Géopolitique",
+   "level": 3,
+   "note": "Plan qatari présenté à Trump (9/11) ; Téhéran : Ormuz fermé tant que ses demandes ne sont pas remplies [33][34]."
+  },
+  {
+   "id": "energie",
+   "name": "Énergie",
+   "level": 3,
+   "note": "Brent sous 90 $ en séance le 10/11 (1re fois depuis août) ; essence en baisse au Canada [35][37]."
+  },
+  {
+   "id": "supply",
+   "name": "Chaînes d'appro.",
+   "level": 2,
+   "note": "Fret Mer Rouge partiel, phosphates +25–30 %, distillats É.-U. sous le minimum 5 ans [10][16]."
+  },
+  {
+   "id": "social",
+   "name": "Social & instit.",
+   "level": 2,
+   "note": "IPC 3,1 % (essence +27,8 %), hausse du taux directeur, incertitude ACEUM [6][7]."
+  },
+  {
+   "id": "prep",
+   "name": "Préparation officielle",
+   "level": 2,
+   "note": "Stratégie de sécurité nationale (29/10) ; Japon : appel national à 3-7 jours de réserves (2/11) [12][22]."
+  },
+  {
+   "id": "cyber",
+   "name": "Cyber",
+   "level": 1,
+   "note": "Aucune attaque majeure connue sur infrastructures canadiennes ; alertes courantes du Centre cyber [11]."
+  },
+  {
+   "id": "climat",
+   "name": "Climat",
+   "level": 1,
+   "note": "Saison des feux close (4e pire) ; risque hivernal sur la pointe électrique québécoise."
+  },
+  {
+   "id": "sante",
+   "name": "Santé",
+   "level": 1,
+   "note": "Rougeole terminée ; Ebola RDC (urgence OMS) ; décès suspect de peste en Sibérie (oct.), non confirmé [15][23][27]."
+  }
+ ],
+ "top_changes": [
+  {
+   "title": "Le pétrole repasse sous 90 $",
+   "strength": "fort",
+   "domain": "Énergie",
+   "fact": "Le 10/11, le Brent est descendu à 89,16 $ en séance, une première depuis août, avant de clôturer à 91,49 $ [35] ; il valait environ 112 $ une semaine plus tôt [36]. À la pompe, les prix baissent au Canada (−11 ¢ annoncés près de Toronto) [37].",
+   "mechanism": "La baisse du brut se répercute en quelques semaines sur l'essence et le diesel, puis sur les prix alimentaires. Elle reste réversible tant qu'Ormuz est fermé.",
+   "effect": "« Brent > 140 $ » : 30 j de 7 à 5 %, 90 j de 16 à 13 %, 1 an de 22 à 20 %. « IPC > 4 % » : 90 j de 17 à 15 %, 1 an de 27 à 25 %.",
+   "sources": [
+    35,
+    36,
+    37
+   ]
+  },
+  {
+   "title": "Diplomatie : un plan qatari, mais des positions éloignées",
+   "strength": "faible",
+   "domain": "Géopolitique",
+   "fact": "Le 9/11, le Premier ministre qatari a présenté à Trump un plan : réouverture en 2 jours contre la levée du blocus et environ 8 G$ d'avoirs iraniens débloqués [33][39]. Rubio juge ces conditions inacceptables ; le 10/11, Téhéran dit le détroit fermé tant que ses demandes ne sont pas satisfaites [34].",
+   "mechanism": "Le marché parie sur un accord, mais les deux camps affichent des exigences incompatibles. Un échec ferait remonter la prime de risque rapidement.",
+   "effect": "Pas de changement de niveau ; nouvelle hypothèse sur un accord d'ici le 30/11.",
+   "sources": [
+    33,
+    34,
+    39
+   ]
+  },
+  {
+   "title": "Les Houthis visent à nouveau Riyad et l'Est saoudien",
+   "strength": "fort",
+   "domain": "Énergie",
+   "fact": "Les 8 et 9/11, des missiles tirés vers Riyad et la province de l'Est ont été interceptés ; des débris ont endommagé un bâtiment administratif d'Aramco à Riyad, sans victime, selon le ministère saoudien de l'Énergie [38].",
+   "mechanism": "La province de l'Est concentre les grandes installations pétrolières saoudiennes. Les frappes continuent, même si les défenses tiennent pour l'instant.",
+   "effect": "Scénario « contournement saoudien » inchangé ; l'indicateur reste « approche ».",
+   "sources": [
+    38
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "brent-140",
+   "name": "Brent au-dessus de 140 $ (clôture)",
+   "p30": {
+    "v": 5,
+    "lo": 3,
+    "hi": 10
+   },
+   "p90": {
+    "v": 13,
+    "lo": 7,
+    "hi": 22
+   },
+   "p1y": {
+    "v": 20,
+    "lo": 10,
+    "hi": 33
+   },
+   "confidence": 1,
+   "trigger": "Arrêt > 14 jours du contournement saoudien ou fermeture de la route sud d'Ormuz",
+   "justification": "Brent sous 90 $ en séance [35] et diplomatie active [33] ; ~ Ormuz reste fermé et les Houthis frappent encore l'Arabie saoudite [38]. Incertitude élevée."
+  },
+  {
+   "id": "diesel-nord-est",
+   "name": "Allocation ou pénuries locales de diesel / mazout dans le nord-est de l'Amérique du Nord",
+   "p30": {
+    "v": 6,
+    "lo": 3,
+    "hi": 12
+   },
+   "p90": {
+    "v": 18,
+    "lo": 10,
+    "hi": 30
+   },
+   "p1y": {
+    "v": 22,
+    "lo": 12,
+    "hi": 35
+   },
+   "confidence": 1,
+   "trigger": "Stocks de distillats É.-U. < 95 Mb ou côte Est à un nouveau creux record",
+   "justification": "Stocks de distillats sous le minimum 5 ans [10] ; → la demande de chauffage d'hiver accentue la tension."
+  },
+  {
+   "id": "bypass-saoudien",
+   "name": "Mise hors service durable (> 14 j) de l'oléoduc Est-Ouest ou de Yanbu",
+   "p30": {
+    "v": 8,
+    "lo": 3,
+    "hi": 15
+   },
+   "p90": {
+    "v": 15,
+    "lo": 8,
+    "hi": 25
+   },
+   "p1y": {
+    "v": 20,
+    "lo": 10,
+    "hi": 35
+   },
+   "confidence": 1,
+   "trigger": "Frappe confirmée avec arrêt annoncé de plus de 2 semaines",
+   "justification": "Frappes répétées en octobre mais arrêts jusqu'ici temporaires [5]. Incertitude élevée."
+  },
+  {
+   "id": "inflation-ca-4",
+   "name": "Inflation canadienne (IPC) au-dessus de 4 %",
+   "p30": {
+    "v": 5,
+    "lo": 2,
+    "hi": 10
+   },
+   "p90": {
+    "v": 15,
+    "lo": 9,
+    "hi": 25
+   },
+   "p1y": {
+    "v": 25,
+    "lo": 15,
+    "hi": 40
+   },
+   "confidence": 2,
+   "trigger": "Essence > 2,00 $/L en moyenne nationale ou IPC hors essence > 3 %",
+   "justification": "IPC hors essence à 2,2 % [7] ; ~ la baisse du brut et de l'essence [35][37] réduit le risque de diffusion aux autres prix."
+  },
+  {
+   "id": "cyber-infra-ca",
+   "name": "Cyberattaque perturbant un service essentiel au Canada (eau, électricité, santé)",
+   "p30": {
+    "v": 3,
+    "lo": 1,
+    "hi": 6
+   },
+   "p90": {
+    "v": 8,
+    "lo": 4,
+    "hi": 14
+   },
+   "p1y": {
+    "v": 18,
+    "lo": 10,
+    "hi": 30
+   },
+   "confidence": 1,
+   "trigger": "Alerte du Centre cyber sur un incident touchant un opérateur d'infrastructure",
+   "justification": "Pas d'incident majeur en octobre [11] ; ~ le contexte de guerre augmente le risque d'acteurs étatiques."
+  },
+  {
+   "id": "reseau-qc-pointe",
+   "name": "Délestages ou coupures tournantes au Québec lors d'une pointe de froid",
+   "p30": {
+    "v": 2,
+    "lo": 1,
+    "hi": 5
+   },
+   "p90": {
+    "v": 8,
+    "lo": 3,
+    "hi": 15
+   },
+   "p1y": {
+    "v": 10,
+    "lo": 4,
+    "hi": 20
+   },
+   "confidence": 1,
+   "trigger": "Vague de froid extrême avec appel public d'Hydro-Québec à réduire la consommation",
+   "justification": "Marge de puissance hivernale serrée (non vérifié pour cet hiver). Incertitude élevée."
+  }
+ ],
+ "impacts": [
+  {
+   "scenario_id": "brent-140",
+   "eau": 0,
+   "alim": 2,
+   "energie": 3,
+   "sante": 1,
+   "mobilite": 3,
+   "info": 0,
+   "securite": 1
+  },
+  {
+   "scenario_id": "diesel-nord-est",
+   "eau": 1,
+   "alim": 2,
+   "energie": 3,
+   "sante": 1,
+   "mobilite": 3,
+   "info": 0,
+   "securite": 1
+  },
+  {
+   "scenario_id": "bypass-saoudien",
+   "eau": 0,
+   "alim": 2,
+   "energie": 3,
+   "sante": 1,
+   "mobilite": 3,
+   "info": 0,
+   "securite": 1
+  },
+  {
+   "scenario_id": "inflation-ca-4",
+   "eau": 0,
+   "alim": 2,
+   "energie": 2,
+   "sante": 1,
+   "mobilite": 2,
+   "info": 0,
+   "securite": 1
+  },
+  {
+   "scenario_id": "cyber-infra-ca",
+   "eau": 2,
+   "alim": 1,
+   "energie": 2,
+   "sante": 2,
+   "mobilite": 1,
+   "info": 2,
+   "securite": 2
+  },
+  {
+   "scenario_id": "reseau-qc-pointe",
+   "eau": 1,
+   "alim": 1,
+   "energie": 3,
+   "sante": 2,
+   "mobilite": 1,
+   "info": 2,
+   "securite": 2
+  }
+ ],
+ "indicators": [
+  {
+   "name": "Brent (clôture quotidienne)",
+   "current": "≈ 91 $ (clôture du 10/11), 89 $ en séance",
+   "up": "> 140 $ pendant 5 jours",
+   "down": "< 90 $ pendant 1 mois",
+   "status": "loin"
+  },
+  {
+   "name": "Trafic du détroit d'Ormuz",
+   "current": "quasi nul : 0 transit le 01/11 (Kpler, source secondaire)",
+   "up": "route sud fermée ou pétrolier escorté touché",
+   "down": "> 50 % du niveau d'avant-guerre pendant 2 semaines",
+   "status": "approche"
+  },
+  {
+   "name": "Stocks de distillats É.-U. (EIA, hebdo)",
+   "current": "102,6 Mb (9/10)",
+   "up": "< 95 Mb ou allocation annoncée au Québec",
+   "down": "> 115 Mb",
+   "status": "approche"
+  },
+  {
+   "name": "IPC Canada (sur un an)",
+   "current": "3,1 % (sept.)",
+   "up": "> 4 %",
+   "down": "< 2,5 %",
+   "status": "loin"
+  },
+  {
+   "name": "Infrastructures pétrolières saoudiennes",
+   "current": "missiles interceptés, débris sur un bâtiment Aramco à Riyad (8-9/11)",
+   "up": "arrêt > 14 jours de l'oléoduc Est-Ouest ou de Yanbu",
+   "down": "1 mois sans frappe",
+   "status": "approche"
+  }
+ ],
+ "actions": [
+  {
+   "level": 0,
+   "text": "Avoir 72 h d'autonomie : eau (6 L par personne), nourriture, lampe, radio à piles",
+   "status": "afaire",
+   "priority": "mois"
+  },
+  {
+   "level": 1,
+   "text": "Garder le réservoir d'essence au-dessus de la moitié, sans stocker de carburant",
+   "status": "afaire",
+   "priority": "mois"
+  },
+  {
+   "level": 1,
+   "text": "Mettre à jour les renouvellements d'ordonnance de la famille",
+   "status": "afaire",
+   "priority": "mois"
+  },
+  {
+   "level": 2,
+   "text": "Si chauffage au mazout ou propane : faire le plein avant décembre et vérifier le contrat de livraison",
+   "status": "afaire",
+   "priority": "urgent"
+  },
+  {
+   "level": 2,
+   "text": "Budget : simuler +15 % sur carburant et chauffage, et l'effet de la hausse de taux sur l'hypothèque",
+   "status": "afaire",
+   "priority": "mois"
+  },
+  {
+   "level": 2,
+   "text": "Constituer progressivement 2 semaines de denrées non périssables et de produits courants",
+   "status": "afaire",
+   "priority": "mois"
+  },
+  {
+   "level": 2,
+   "text": "Tester détecteurs de fumée et de CO ; prévoir couvertures et vêtements chauds pour une panne",
+   "status": "afaire",
+   "priority": "mois"
+  },
+  {
+   "level": 2,
+   "text": "Faire des achats de panique ou des réserves massives d'essence",
+   "status": "interdit"
+  },
+  {
+   "level": 3,
+   "text": "Prévoir une source de chaleur d'appoint homologuée pour l'intérieur (jamais de BBQ ni de génératrice dedans)",
+   "status": "afaire",
+   "priority": "plus_tard"
+  },
+  {
+   "level": 3,
+   "text": "Plan familial : point de rencontre, contacts sur papier, rôle de chacun",
+   "status": "afaire",
+   "priority": "plus_tard"
+  },
+  {
+   "level": 3,
+   "text": "Garder de l'argent comptant pour 1 à 2 semaines de dépenses essentielles",
+   "status": "afaire",
+   "priority": "plus_tard"
+  },
+  {
+   "level": 3,
+   "text": "Réduire les trajets non essentiels : covoiturage, télétravail si possible",
+   "status": "afaire",
+   "priority": "plus_tard"
+  }
+ ],
+ "hypotheses": [
+  {
+   "text": "Le trafic d'Ormuz ne dépassera pas 50 % du niveau d'avant-guerre d'ici le 30/11",
+   "verdict": "indetermine",
+   "comment": "Échéance non atteinte.",
+   "eval_date": "2026-11-30"
+  },
+  {
+   "text": "Le Brent restera au-dessus de 100 $ en moyenne en novembre",
+   "verdict": "indetermine",
+   "comment": "Brent vers 91 $ le 10/11 : très probablement faux.",
+   "eval_date": "2026-11-30"
+  },
+  {
+   "text": "Aucune mesure d'allocation de diesel ou de mazout au Québec d'ici fin novembre",
+   "verdict": "indetermine",
+   "comment": "Échéance non atteinte.",
+   "eval_date": "2026-11-30"
+  },
+  {
+   "text": "L'IPC canadien d'octobre restera entre 2,8 % et 3,6 %",
+   "verdict": "indetermine",
+   "comment": "Échéance non atteinte.",
+   "eval_date": "2026-11-30"
+  },
+  {
+   "text": "La Banque du Canada relèvera encore son taux le 9 décembre",
+   "verdict": "indetermine",
+   "comment": "Échéance non atteinte.",
+   "eval_date": "2026-12-09"
+  },
+  {
+   "text": "Pas de reprise des frappes américaines sur l'Iran dans les 2 semaines suivant les élections américaines du 3/11",
+   "verdict": "indetermine",
+   "comment": "Pas de nouvelle frappe américaine rapportée au 11/11.",
+   "eval_date": "2026-11-17"
+  },
+  {
+   "text": "Aucune frappe iranienne sur des infrastructures pétrolières du Golfe d'ici le 18/11",
+   "verdict": "nouveau",
+   "comment": "Rien de tel rapporté au 11/11 ; attaques de pétroliers revendiquées par les Gardiens.",
+   "eval_date": "2026-11-18"
+  },
+  {
+   "text": "Le prix moyen de l'essence au Québec baisse d'au moins 5 ¢/L d'ici le 30/11",
+   "verdict": "nouveau",
+   "comment": "Baisse en cours au Canada ; pas encore de chiffre québécois fiable.",
+   "eval_date": "2026-11-30"
+  },
+  {
+   "text": "Aucun accord de réouverture d'Ormuz n'est annoncé d'ici le 30/11",
+   "verdict": "nouveau",
+   "comment": "",
+   "eval_date": "2026-11-30"
+  }
+ ],
+ "sources": [
+  {
+   "n": 1,
+   "title": "October Sees Near Daily Strikes on Ships in Hormuz",
+   "publisher": "USNI News",
+   "date": "2026-10-09",
+   "url": "https://news.usni.org/2026/10/09/october-sees-near-daily-strikes-on-ships-in-hormuz"
+  },
+  {
+   "n": 2,
+   "title": "Iran steps up Hormuz surveillance: attacks soar, oil flows crash again",
+   "publisher": "Al Jazeera",
+   "date": "2026-10-14",
+   "url": "https://www.aljazeera.com/news/2026/10/14/iran-steps-up-hormuz-surveillance-attacks-soar-oil-flows-crash-again"
+  },
+  {
+   "n": 3,
+   "title": "Iran's Revolutionary Guard reports two tankers on fire in Strait of Hormuz as talks continue",
+   "publisher": "Euronews",
+   "date": "2026-10-30",
+   "url": "https://www.euronews.com/2026/10/30/irans-revolutionary-guard-reports-two-tankers-on-fire-in-strait-of-hormuz-as-talks-continu"
+  },
+  {
+   "n": 4,
+   "title": "Yemen government forces strike Sanaa and Saada as Houthis claim Aramco attack",
+   "publisher": "The National",
+   "date": "2026-10-04",
+   "url": "https://www.thenationalnews.com/news/gulf/2026/10/04/yemen-government-forces-strike-sanaa-and-saada-as-houthis-claim-aramco-attack/"
+  },
+  {
+   "n": 5,
+   "title": "Houthis report Saudi reprisals after oil sites set ablaze in wave of strikes",
+   "publisher": "Iraqi News (source secondaire)",
+   "date": "2026-10-24",
+   "url": "https://www.iraqinews.com/arab-world-news/houthis-report-saudi-reprisals-after-oil-sites-set-ablaze-in-wave-of-strikes/"
+  },
+  {
+   "n": 6,
+   "title": "Bank of Canada raises the policy rate by 25 basis points to 2½%",
+   "publisher": "Banque du Canada",
+   "date": "2026-10-28",
+   "url": "https://www.bankofcanada.ca/2026/10/fad-press-release-2026-10-28/"
+  },
+  {
+   "n": 7,
+   "title": "Canadian inflation ticked higher in September (données Statistique Canada)",
+   "publisher": "RBC Economics",
+   "date": "2026-10-19",
+   "url": "https://www.rbc.com/en/economics/canadian-analysis/data-flashes/canadian-inflation-ticked-higher-in-september/"
+  },
+  {
+   "n": 8,
+   "title": "Brent crude oil",
+   "publisher": "Trading Economics",
+   "date": "2026-10-30",
+   "url": "https://tradingeconomics.com/commodity/brent-crude-oil"
+  },
+  {
+   "n": 9,
+   "title": "Crude Oil Prices: Brent - Europe (DCOILBRENTEU)",
+   "publisher": "FRED, Federal Reserve Bank of St. Louis",
+   "date": "2026-10-27",
+   "url": "https://fred.stlouisfed.org/series/DCOILBRENTEU"
+  },
+  {
+   "n": 10,
+   "title": "Global diesel shortage likely to last into 2027 as storage tanks drain",
+   "publisher": "Hydrocarbon Processing (Reuters)",
+   "date": "2026-09",
+   "url": "https://hydrocarbonprocessing.com/news/2026/09/global-diesel-shortage-likely-to-last-into-2027-as-storage-tanks-drain/"
+  },
+  {
+   "n": 11,
+   "title": "Alerts and advisories",
+   "publisher": "Centre canadien pour la cybersécurité",
+   "date": "2026-10-28",
+   "url": "https://www.cyber.gc.ca/en/alerts-advisories"
+  },
+  {
+   "n": 12,
+   "title": "Prime Minister Carney launches The Plan for a Stronger Canada",
+   "publisher": "Cabinet du premier ministre",
+   "date": "2026-10-29",
+   "url": "https://www.pm.gc.ca/en/news/news-releases/2026/10/29/prime-minister-carney-launches-plan-stronger-canada-strengthen"
+  },
+  {
+   "n": 13,
+   "title": "New national security strategy calls for worst-case scenario preparations including 'war'",
+   "publisher": "CP24 (La Presse canadienne)",
+   "date": "2026-10-29",
+   "url": "https://www.cp24.com/news/canada/2026/10/29/new-national-security-strategy-calls-for-worst-case-scenario-preparations-including-war/"
+  },
+  {
+   "n": 14,
+   "title": "IEA says 325 million barrels of emergency oil released, with 75 million still to come",
+   "publisher": "Euronews",
+   "date": "2026-10-03",
+   "url": "https://www.euronews.com/2026/10/03/iea-says-325-million-barrels-of-emergency-oil-released-with-75-million-still-to-come"
+  },
+  {
+   "n": 15,
+   "title": "Multi-jurisdictional measles outbreak is over",
+   "publisher": "Agence de la santé publique du Canada",
+   "date": "2026-10-19",
+   "url": "https://www.canada.ca/en/public-health/news/2026/10/multi-jurisdictional-measles-outbreak-is-over.html"
+  },
+  {
+   "n": 16,
+   "title": "How are fertilizer markets coping with the continued closure of the Strait of Hormuz?",
+   "publisher": "IFPRI",
+   "date": "2026",
+   "url": "https://www.ifpri.org/blog/how-are-fertilizer-markets-coping-with-the-continued-closure-of-the-strait-of-hormuz/"
+  },
+  {
+   "n": 17,
+   "title": "Canada takes a page from the Saudi oil playbook (Reuters column)",
+   "publisher": "BOE Report",
+   "date": "2026-10-27",
+   "url": "https://boereport.com/2026/10/27/canada-takes-a-page-from-the-saudi-oil-playbook-bousso/"
+  },
+  {
+   "n": 18,
+   "title": "Semaine de la sécurité civile",
+   "publisher": "Gouvernement du Québec",
+   "date": "2026-05",
+   "url": "https://www.quebec.ca/securite-situations-urgence/se-preparer/maison/semaine-de-la-securite-civile"
+  },
+  {
+   "n": 19,
+   "title": "Shipping through Strait of Hormuz slows almost to a standstill (données Kpler)",
+   "publisher": "Sigmalive (source secondaire)",
+   "date": "2026-11",
+   "url": "https://en.sigmalive.com/shipping-through-strait-of-hormuz-slows-almost-to-a-standstill/"
+  },
+  {
+   "n": 20,
+   "title": "Iran says \"ball is in the U.S. court\" on deal to end war",
+   "publisher": "CBS News (live)",
+   "date": "2026-11",
+   "url": "https://cbsnews.com/live-updates/iran-war-us-trump-negotiations-midterms"
+  },
+  {
+   "n": 21,
+   "title": "Brent Crude $110: falls 3 percent after OPEC+ hold",
+   "publisher": "FinanceFeeds",
+   "date": "2026-11-02",
+   "url": "https://financefeeds.com/brent-crude-oil-price-110-monday-after-opec-plus-holds-december-targets-29-november-2027-meeting-bull-120-bear-104/"
+  },
+  {
+   "n": 22,
+   "title": "Japan joins UK in urging households to prepare week-long emergency supplies",
+   "publisher": "IBTimes UK (source secondaire)",
+   "date": "2026-11",
+   "url": "https://www.ibtimes.co.uk/japan-households-three-days-emergency-supplies-1828131"
+  },
+  {
+   "n": 23,
+   "title": "Ebola (Bundibugyo) outbreak, DRC/Uganda: weekly bulletin",
+   "publisher": "OMS Afrique",
+   "date": "2026",
+   "url": "https://www.afro.who.int/publications/ebola-bundibugyo-virus-disease-outbreak-democratic-republic-congo-uganda-weekly"
+  },
+  {
+   "n": 24,
+   "title": "Crude oil slips to $103 as markets track US midterm results",
+   "publisher": "HDFC Sky (source secondaire)",
+   "date": "2026-11-04",
+   "url": "https://hdfcsky.com/news/brent-crude-oil-price-today-november-4-2026-brent-slips-to-103-2-as-investors-watch-us-midterm-polls"
+  },
+  {
+   "n": 25,
+   "title": "US strikes Iran's Qeshm Island ahead of midterm elections",
+   "publisher": "Euronews",
+   "date": "2026-11-03",
+   "url": "https://www.euronews.com/2026/11/03/us-strikes-irans-qeshm-island-ahead-of-midterm-elections"
+  },
+  {
+   "n": 26,
+   "title": "Iran says US reply to Hormuz plan 'unconvincing'; Trump confirms strikes",
+   "publisher": "Al Jazeera",
+   "date": "2026-11-04",
+   "url": "https://www.aljazeera.com/news/2026/11/4/iran-says-us-reply-to-hormuz-plan-unconvincing-trump-confirms-strikes"
+  },
+  {
+   "n": 27,
+   "title": "'No plague case' in Siberia, Russia tells WHO as assessments continue",
+   "publisher": "ONU Info",
+   "date": "2026-10",
+   "url": "https://news.un.org/en/story/2026/10/1168547"
+  },
+  {
+   "n": 28,
+   "title": "2026 midterm election updates as fallout begins over sweeping Democratic victories",
+   "publisher": "CBS News (live)",
+   "date": "2026-11-04",
+   "url": "https://www.cbsnews.com/live-updates/election-day-2026-midterms/"
+  },
+  {
+   "n": 29,
+   "title": "Iran says U.S. election results show Americans reject war, as Trump says he'd do it again",
+   "publisher": "CBS News (live)",
+   "date": "2026-11-05",
+   "url": "https://www.cbsnews.com/live-updates/iran-war-us-trump-midterms-strait-of-hormuz/"
+  },
+  {
+   "n": 30,
+   "title": "Brent crude slides as political shift chips away at war risk premium",
+   "publisher": "Tradingpedia (source secondaire)",
+   "date": "2026-11-05",
+   "url": "https://tradingpedia.com/2026/11/05/brent-crude-slides-as-political-shift-chips-away-at-war-risk-premium"
+  },
+  {
+   "n": 31,
+   "title": "Brent plunges 18% in a week to two-month low",
+   "publisher": "Equentis (source secondaire)",
+   "date": "2026-11-05",
+   "url": "https://www.equentis.com/blog/crude-oil-prices-crash-brent-plunges-18-in-a-week-to-two-month-low-is-80-next/"
+  },
+  {
+   "n": 32,
+   "title": "Iran allows Indian ships Hormuz transit",
+   "publisher": "News Today (source secondaire)",
+   "date": "2026-11-05",
+   "url": "https://newstodaynet.com/2026/11/05/iran-allows-indian-ships-hormuz-transit/"
+  },
+  {
+   "n": 33,
+   "title": "Qatar PM to meet Trump: what's the latest on US-Iran negotiations?",
+   "publisher": "Al Jazeera",
+   "date": "2026-11-09",
+   "url": "https://www.aljazeera.com/news/2026/11/9/qatar-pm-to-meet-trump-whats-the-latest-on-us-iran-negotiations"
+  },
+  {
+   "n": 34,
+   "title": "Iran says Strait of Hormuz will stay closed until U.S. meets demands",
+   "publisher": "Haaretz",
+   "date": "2026-11-10",
+   "url": "https://www.haaretz.com/middle-east-news/iran/2026-11-10/ty-article/iran-says-strait-of-hormuz-will-stay-closed-until-u-s-meets-demands/000001a1-c658-df80-a9e3-e6fc56fb0000"
+  },
+  {
+   "n": 35,
+   "title": "Brent crude briefly dips below $90 for first time since August on Iran hopes",
+   "publisher": "CNBC",
+   "date": "2026-11-10",
+   "url": "https://www.cnbc.com/2026/11/10/oil-prices-trump-iran.html"
+  },
+  {
+   "n": 36,
+   "title": "Global oil prices have dropped. Here's what that means for drivers",
+   "publisher": "ABC News (Australie)",
+   "date": "2026-11-10",
+   "url": "https://www.abc.net.au/news/2026-11-10/fuel-update-oil-prices-drop-midterms-iran-ukraine/107364786"
+  },
+  {
+   "n": 37,
+   "title": "Price of gas, diesel in the Greater Toronto Area to drop by 11 cents on Wednesday",
+   "publisher": "CP24",
+   "date": "2026-11-02",
+   "url": "https://cp24.com/local/toronto/2026/11/02/price-of-gas-diesel-in-the-greater-toronto-area-to-drop-by-11-cents-on-wednesday/"
+  },
+  {
+   "n": 38,
+   "title": "Saudis report new attacks amid escalation with Houthis",
+   "publisher": "AAP / AP (via The Senior)",
+   "date": "2026-11-09",
+   "url": "https://www.thesenior.com.au/story/9387819/saudis-report-new-attacks-amid-escalation-with-houthis/"
+  },
+  {
+   "n": 39,
+   "title": "Qatar to present Trump with $8 billion Hormuz deal: report",
+   "publisher": "Iran International (média d'opposition, source secondaire)",
+   "date": "2026-11-09",
+   "url": "https://www.iranintl.com/en/202611094583"
+  }
+ ],
+ "caveat": "Six jours sans rapport : des faits intermédiaires ont pu m'échapper. Les termes du plan qatari viennent de sources secondaires et les deux camps se contredisent ; la baisse du pétrole peut s'inverser si les discussions échouent."
+}
