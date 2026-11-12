@@ -36,7 +36,7 @@ const num = v => (typeof v === 'number' ? v : (v && typeof v.v === 'number' ? v.
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 function arrow(d) {
-  if (d === null) return h('span', 'dl new', '🆕');
+  if (d === null) return h('span', 'dl new', 'NOUV');
   const s = d > 0 ? '▲' : d < 0 ? '▼' : '►';
   const txt = d ? `${s} ${d > 0 ? '+' : ''}${Math.round(d * 10) / 10}` : s;
   return h('span', 'dl ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'flat'), txt);
@@ -84,19 +84,51 @@ function addReport(r, silent) {
   if (!silent) { render(); toast(i >= 0 ? 'Rapport du ' + fmtDate(r.date) + ' remplacé' : 'Rapport ajouté'); }
 }
 
-/* ---------- construction d'une section repliable ---------- */
-function section(title, status, bodyEls, open = false) {
-  // status : null (pas de précédent) | nombre de changements
+/* ---------- rendu v10 : « exec brief, engine-spec » en ambiance spatiale ----------
+   Résumé = télémétrie · Changements = fiche technique (mode Journal au choix) · Domaines = carte stellaire.
+   Pas de cartes ni de bulles : filets de 1 px, codes en Plex Mono, couleur réservée au sens. */
+const DCODE = { geo: 'GEO', energie: 'ENE', supply: 'APP', cyber: 'CYB', climat: 'CLI', sante: 'SAN', social: 'SOC', prep: 'PRE' };
+const DORDER = ['geo', 'energie', 'supply', 'cyber', 'climat', 'sante', 'social', 'prep'];
+const MODE_KEY = 'riskwatch.mode.v1';
+let MODE = 'compact';
+try { MODE = localStorage.getItem(MODE_KEY) === 'journal' ? 'journal' : 'compact'; } catch (e) { /* stockage indisponible */ }
+const pad2 = n => String(n).padStart(2, '0');
+const mono = (t, cls) => h('span', 'mono' + (cls ? ' ' + cls : ''), t);
+function tag(t, color) { const s = h('span', 'tag', t); if (color) s.style.color = color; return s; }
+
+/* --- section : filet pleine largeur, code + titre + état + compteur + ± --- */
+function section(code, title, status, count, bodyEls, open = false) {
   const d = h('details', 'sec');
-  const s = h('summary');
-  add(s, h('span', 'st', title));
-  if (status === null) s.append(h('span', 'chip', '🆕 référence'));
-  else if (status > 0) s.append(h('span', 'chip chg', `▲ ${status} changement${status > 1 ? 's' : ''}`));
-  else s.append(h('span', 'chip', '= IDEM'));
-  d.append(s);
-  d.append(add(h('div', 'sbody'), bodyEls));
-  d.open = open; // tout est replié par défaut ; le badge indique s'il y a du changement
+  const s = h('summary', 'sh');
+  const st = status === null ? 'RÉF.' : status > 0 ? `▲ ${status}` : '= IDEM';
+  add(s, h('span', 'scode', code), h('span', 'stitle', title),
+    h('span', 'sstat' + (status > 0 ? ' chg' : ''), st), count != null ? h('span', 'scount', String(count)) : null,
+    h('span', 'stog'));
+  d.append(s, add(h('div', 'sbody'), bodyEls));
+  d.open = open;
   return d;
+}
+
+/* --- références de sources cliquables : [n] trouvés dans les textes + numéros explicites --- */
+function srcRefs(cur, texts, extra, label = 'Preuve') {
+  const ns = new Set((extra || []).map(Number));
+  (texts || []).forEach(t => String(t || '').replace(/\[(\d+)\]/g, (_, n) => { ns.add(Number(n)); return _; }));
+  const byN = new Map((cur.sources || []).map(s => [s.n, s]));
+  const list = [...ns].filter(n => byN.has(n)).sort((a, b) => a - b);
+  if (!list.length) return null;
+  const p = h('div', 'proof');
+  p.append(mono(label + ' · '));
+  list.forEach((n, i) => {
+    const s = byN.get(n), label2 = `[${n}] ${s.publisher || s.title || ''}`;
+    let el;
+    if (typeof s.url === 'string' && /^https:\/\//i.test(s.url)) {
+      el = h('a', null, label2); el.href = s.url; el.target = '_blank'; el.rel = 'noopener noreferrer';
+    } else el = h('span', null, label2);
+    if (s.title) el.title = s.title;
+    if (i) p.append(document.createTextNode(' · '));
+    p.append(el);
+  });
+  return p;
 }
 
 /* ---------- rendu ---------- */
@@ -106,352 +138,346 @@ function render() {
   $('#prev').disabled = idx <= 0;
   $('#next').disabled = idx < 0 || idx >= reports.length - 1;
   if (idx < 0 || !reports[idx]) {
-    $('#dateLbl').textContent = 'CanarAI-n the Mine'; $('#posLbl').textContent = '';
+    $('#dateLbl').textContent = 'Canar · Veille'; $('#posLbl').textContent = '';
     const e = h('div', 'empty');
-    add(e, h('h2', null, 'Aucun rapport'),
-      h('p', 'mut', 'Importe le JSON produit par Claude (bouton ＋), synchronise depuis ton dépôt, ou charge l\'exemple fictif.'));
-    const row = h('div', 'row'); row.style.justifyContent = 'center';
-    const b1 = h('button', 'btn pri', 'Importer un rapport'); b1.onclick = () => $('#importDlg').showModal();
-    const b2 = h('button', 'btn', 'Charger l\'exemple'); b2.onclick = loadSample;
-    app.append(add(e, add(row, b1, b2)));
+    add(e, h('h2', 'h1', 'Aucun rapport.'),
+      h('p', 'lede', 'Importe un rapport (＋), synchronise depuis le dépôt, ou charge l\'exemple fictif.'));
+    const b1 = h('button', 'act', 'Importer'); b1.onclick = () => $('#importDlg').showModal();
+    const b2 = h('button', 'act', 'Charger l\'exemple'); b2.onclick = loadSample;
+    app.append(add(e, add(h('div', 'acts'), b1, b2)));
     return;
   }
   const cur = reports[idx], prev = idx > 0 ? reports[idx - 1] : null;
   $('#dateLbl').textContent = fmtDate(cur.date);
-  $('#posLbl').textContent = `${idx + 1} / ${reports.length}` + (prev ? ` · vs ${fmtDate(prev.date)}` : ' · référence');
-
-  app.append(topBand(cur, prev));
-  app.append(heatCard(cur, prev));
-  app.append(topChanges(cur, prev));
+  $('#posLbl').textContent = `${idx + 1}/${reports.length}` + (prev ? ` · vs ${fmtDate(prev.date)}` : ' · référence');
+  app.append(hud(cur, prev));
+  app.append(changesSec(cur, prev));
+  app.append(starMapSec(cur, prev));
   app.append(scenariosSec(cur, prev));
   app.append(impactsSec(cur, prev));
   app.append(indicatorsSec(cur, prev));
   app.append(actionsSec(cur, prev));
   app.append(hypSec(cur, prev));
   app.append(sourcesSec(cur));
-  if (cur.caveat) add(app, add(h('div', 'recul'), h('b', null, '⚠️ Recul : '), document.createTextNode(String(cur.caveat))));
+  if (cur.caveat) add(app, add(h('div', 'recul'), mono('Recul'), h('p', null, String(cur.caveat))));
 }
 
-
-/* --- références de sources cliquables : [n] trouvés dans les textes + numéros explicites --- */
-function srcRefs(cur, texts, extra) {
-  const ns = new Set((extra || []).map(Number));
-  (texts || []).forEach(t => String(t || '').replace(/\[(\d+)\]/g, (_, n) => { ns.add(Number(n)); return _; }));
-  const byN = new Map((cur.sources || []).map(s => [s.n, s]));
-  const list = [...ns].filter(n => byN.has(n)).sort((a, b) => a - b);
-  if (!list.length) return null;
-  const p = h('div', 'src');
-  p.append(h('span', 'mut', 'Sources : '));
-  list.forEach((n, i) => {
-    const s = byN.get(n);
-    const label = `[${n}] ${s.publisher || s.title || ''}`;
-    let el;
-    if (typeof s.url === 'string' && /^https:\/\//i.test(s.url)) {
-      el = h('a', null, label); el.href = s.url; el.target = '_blank'; el.rel = 'noopener noreferrer';
-    } else el = h('span', null, label);
-    if (s.title) el.title = s.title;
-    if (i) p.append(document.createTextNode(' · '));
-    p.append(el);
-  });
-  return p;
-}
-
-/* --- légende des impacts : pastilles de couleur réelles + exemple de cellule encadrée --- */
-function impactLegend() {
-  const box = h('div', 'mut');
-  box.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12px;margin-top:8px';
-  [[1, 'faible'], [2, 'moyen'], [3, 'élevé']].forEach(([v, lab]) => {
-    const it = h('span'); const dt = h('span', 'dot'); dt.style.background = lc(v);
-    dt.style.marginRight = '5px'; add(it, dt, document.createTextNode(lab)); box.append(it);
-  });
-  const it = h('span'); const sq = h('span');
-  sq.style.cssText = 'display:inline-block;width:12px;height:12px;border:2px solid var(--chgline);border-radius:3px;vertical-align:middle;margin-right:5px';
-  add(it, sq, document.createTextNode('changement depuis la veille')); box.append(it);
-  const none = h('span', null, '– aucun impact'); box.append(none);
-  return box;
-}
-
-/* --- bandeau du haut : niveau d'alerte (2/3) + repère Doomsday Clock (1/3) --- */
-function topBand(cur, prev) {
-  const hb = hero(cur, prev);
-  if (!DOOM) return hb;                       // pas de fichier doomsday.json : bandeau pleine largeur
-  return add(h('div', 'topband'), hb, doomCard(DOOM));
-}
+/* --- RÉSUMÉ : télémétrie (réticule, niveau géant, échelle N0→N4, relevé Doomsday) --- */
 function validDoom(d) {
   return d && typeof d.seconds === 'number' && d.seconds > 0 && typeof d.date === 'string' ? d : null;
 }
 function clockSvg(sec) {
-  // Cadran générique (pas le logo officiel) : aiguilles placées à « sec » secondes avant minuit
+  // Cadran générique (pas le logo officiel), trait fin : aiguilles à « sec » secondes de minuit
   const NS = 'http://www.w3.org/2000/svg';
   const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
   const svg = el('svg', { viewBox: '0 0 100 100', class: 'dc-svg', 'aria-hidden': 'true' });
-  const defs = el('defs', {}), gr = el('linearGradient', { id: 'dcg', x1: '0', y1: '1', x2: '1', y2: '0' });
-  [['0', '#F0C419'], ['.6', '#FF9A3C'], ['1', '#FF5A5A']].forEach(([o, c]) => gr.append(el('stop', { offset: o, 'stop-color': c })));
-  defs.append(gr); svg.append(defs);
   const R = 44, pt = (deg, r) => [50 + r * Math.sin(deg * Math.PI / 180), 50 - r * Math.cos(deg * Math.PI / 180)];
-  svg.append(el('circle', { cx: 50, cy: 50, r: R, fill: 'var(--void)', stroke: 'var(--line-2)', 'stroke-width': 1.5 }));
-  const [x0, y0] = pt(-90, R);   // zone des 15 dernières minutes
-  svg.append(el('path', { d: `M${x0} ${y0} A${R} ${R} 0 0 1 50 ${50 - R}`, stroke: 'url(#dcg)', 'stroke-width': 5, fill: 'none', 'stroke-linecap': 'round' }));
-  for (let hr = 0; hr < 12; hr++) {
-    const big = hr % 3 === 0, [a, b] = pt(hr * 30, R - 4), [c, d] = pt(hr * 30, R - (big ? 11 : 8));
-    svg.append(el('line', { x1: a, y1: b, x2: c, y2: d, stroke: 'var(--ink)', 'stroke-opacity': big ? .9 : .5, 'stroke-width': big ? 2.4 : 1.4, 'stroke-linecap': 'round' }));
-  }
-  const [hx, hy] = pt(-sec / 43200 * 360, R - 22), [mx, my] = pt(-sec / 3600 * 360, R - 10);
-  svg.append(el('line', { x1: 50, y1: 50, x2: hx, y2: hy, stroke: 'var(--ink)', 'stroke-width': 4, 'stroke-linecap': 'round' }));
-  svg.append(el('line', { x1: 50, y1: 50, x2: mx, y2: my, stroke: 'var(--gold)', 'stroke-width': 2.6, 'stroke-linecap': 'round' }));
-  svg.append(el('circle', { cx: 50, cy: 50, r: 3.6, fill: 'var(--gold)' }));
+  svg.append(el('circle', { cx: 50, cy: 50, r: R, fill: 'none', stroke: 'var(--rule-2)', 'stroke-width': 3 }));
+  const [x0, y0] = pt(-90, R);
+  svg.append(el('path', { d: `M${x0} ${y0} A${R} ${R} 0 0 1 50 ${50 - R}`, stroke: 'var(--l3)', 'stroke-width': 6, fill: 'none' }));
+  const [hx, hy] = pt(-sec / 43200 * 360, R - 20), [mx, my] = pt(-sec / 3600 * 360, R - 8);
+  svg.append(el('line', { x1: 50, y1: 50, x2: hx, y2: hy, stroke: 'var(--ink)', 'stroke-width': 6 }));
+  svg.append(el('line', { x1: 50, y1: 50, x2: mx, y2: my, stroke: 'var(--ink)', 'stroke-width': 3 }));
   return svg;
 }
-function doomCard(dm) {
-  const sec = dm.seconds;
-  const val = sec < 180 ? `${sec} s` : `${Math.round(sec / 60)} min`;
-  const c = h('div', 'dclock');
-  c.title = 'Doomsday Clock — ' + (dm.source || 'Bulletin of the Atomic Scientists');
-  add(c, h('span', 'eb', 'Doomsday Clock'), clockSvg(sec), h('span', 'v', val), h('span', 'u', 'avant minuit'));
-  if (typeof dm.previous === 'number') {
-    const dl = dm.previous - sec, py = dm.previous_year ? `${dm.previous_year} : ` : 'avant : ';
-    const txt = dl > 0 ? `▲ ${dl} s plus près` : dl < 0 ? `▼ ${-dl} s plus loin` : '► inchangée';
-    add(c, h('span', 'd ' + (dl > 0 ? 'up' : dl < 0 ? 'down' : 'flat'), `${txt} (${py}${dm.previous} s)`));
-  }
-  const src = h('span', 's');
-  const lab = `${dm.source || 'Bulletin of the Atomic Scientists'} · ${fmtDate(dm.date)}`;
-  if (typeof dm.url === 'string' && /^https:\/\//i.test(dm.url)) {
-    const a = h('a', null, lab); a.href = dm.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; src.append(a);
-  } else src.textContent = lab;
-  add(c, src, h('span', 's', 'Repère annuel, mondial'));
-  return c;
-}
-
-/* --- en-tête --- */
-function hero(cur, prev) {
+function hud(cur, prev) {
   const lv = Math.max(0, Math.min(4, cur.alert.level | 0));
-  const d = h('div', `hero l${lv}`);
-  d.style.setProperty('--lv', lc(lv)); // la couleur du niveau éclaire la carte (voir .hero dans style.css)
-  add(d, h('div', 'lv', `${LV[lv].k} · ${cur.alert.label || LV[lv].n}`));
+  const wrap = h('div', 'brief');
+  wrap.style.setProperty('--lv', lc(lv));
+  wrap.append(h('div', 'meta', [`Rapport ${fmtDate(cur.date)}`, cur.period, cur.generator && 'source ' + cur.generator].filter(Boolean).join(' · ')));
+  const box = h('div', 'hud');
+  ['tl', 'tr', 'bl', 'br'].forEach(c => box.append(h('span', 'tick ' + c)));
   let line;
-  if (!prev) line = '🆕 rapport de référence';
+  if (!prev) line = 'Rapport de référence';
   else {
     const dl = lv - (prev.alert.level | 0);
-    line = dl === 0 ? `► inchangé depuis ${fmtDate(prev.date)}`
-      : `${dl > 0 ? '▲' : '▼'} ${dl > 0 ? 'monte' : 'baisse'} de N${prev.alert.level} à N${lv} depuis ${fmtDate(prev.date)}`;
+    line = dl === 0 ? `Inchangé depuis ${fmtDate(prev.date)}` : `${dl > 0 ? '▲ Monte' : '▼ Baisse'} de N${prev.alert.level} à N${lv}`;
   }
-  d.append(h('div', 'dl2', line));
-  if (cur.alert.summary) d.append(h('p', null, cur.alert.summary));
-  if (prev && lv !== prev.alert.level && cur.alert.change_reason) d.append(h('p', null, 'Pourquoi : ' + cur.alert.change_reason));
-  d.append(h('div', 'meta', [LV[lv].t, cur.period && 'Période : ' + cur.period,
-    cur.generator && 'Source : ' + cur.generator].filter(Boolean).join(' · ')));
-  return d;
-}
-
-/* --- carte thermique --- */
-function heatCard(cur, prev) {
-  const pm = new Map((prev ? prev.domains : []).map(x => [x.id || x.name, x]));
-  const rows = cur.domains.map(d => {
-    const p = pm.get(d.id || d.name);
-    const lvl = Math.max(0, Math.min(3, d.level | 0));
-    const delta = !prev ? undefined : (p ? lvl - (p.level | 0) : null);
-    const changed = !!prev && (!p || p.level !== d.level || (p.note || '') !== (d.note || ''));
-    return { d, lvl, delta, changed };
-  }).sort((a, b) => b.lvl - a.lvl || (b.changed - a.changed));
-  const grid = h('div', 'heat');
-  rows.forEach(r => {
-    const t = h('div', 'tile' + (r.changed ? ' chg' : (prev ? ' idem' : '')));
-    t.style.setProperty('--c', lc(r.lvl));
-    const n = h('div', 'n');
-    add(n, h('span', null, r.d.name || r.d.id), prev ? arrow(r.delta) : null);
-    const show = !prev || r.changed;
-    const tx = h('div', 't', show ? (r.d.note || '—') : '= IDEM');
-    if (!show) {
-      // Domaine inchangé : un tap affiche la note (rappel du jour précédent), un second la replie.
-      t.style.cursor = 'pointer';
-      t.onclick = () => {
-        const open = tx.textContent === '= IDEM';
-        tx.textContent = open ? '= IDEM · ' + (r.d.note || '—') : '= IDEM';
-      };
-    } else {
-      t.style.cursor = 'default'; // domaine nouveau ou modifié : la note est déjà affichée, rien à replier
+  const top = h('div', 'lvl');
+  add(top, h('span', 'big', LV[lv].k),
+    add(h('div', 'lvlside'), h('div', 'lvname', `${cur.alert.label || LV[lv].n} · ${LV[lv].t}`), mono(line)));
+  const scale = h('div', 'scale');
+  for (let i = 0; i <= 4; i++) scale.append(h('span', i < lv ? 'done' : i === lv ? 'on' : ''));
+  const lab = h('div', 'scalelab');
+  for (let i = 0; i <= 4; i++) lab.append(mono('N' + i, i === lv ? 'cur' : ''));
+  add(box, top, scale, lab);
+  if (DOOM) {
+    const d = DOOM, sec = d.seconds, row = h('div', 'doom');
+    const txt = h('div');
+    add(txt, add(h('div', 'doomv'), mono('Doomsday'), h('b', null, sec < 180 ? `${sec} s` : `${Math.round(sec / 60)} min`), mono('avant minuit')));
+    if (typeof d.previous === 'number') {
+      const dl = d.previous - sec;
+      txt.append(mono(`${dl > 0 ? '▲ ' + dl + ' s plus près' : dl < 0 ? '▼ ' + (-dl) + ' s plus loin' : '= inchangée'} · ${d.previous_year || 'avant'} : ${d.previous} s · repère annuel`, dl > 0 ? 'up' : dl < 0 ? 'dn' : ''));
     }
-    add(t, n, tx); grid.append(t);
-  });
-  const n = rows.filter(r => r.changed).length;
-  const idemCount = prev ? rows.length - n : 0;
-  const hint = idemCount ? h('p', 'mut', 'Tape une tuile « = IDEM » pour revoir sa note.') : null;
-  return section('Carte des 8 domaines', prev ? n : null, [grid, hint].filter(Boolean), true);
+    row.title = (d.source || 'Bulletin of the Atomic Scientists') + ' · ' + fmtDate(d.date);
+    add(row, clockSvg(sec), txt);
+    box.append(row);
+  }
+  wrap.append(box);
+  if (cur.alert.summary) wrap.append(h('p', 'lede', cur.alert.summary));
+  if (prev && lv !== prev.alert.level && cur.alert.change_reason) wrap.append(h('p', 'lede', 'Pourquoi : ' + cur.alert.change_reason));
+  return wrap;
 }
 
-/* --- top changements --- */
-function topChanges(cur, prev) {
-  const els = cur.top_changes.slice(0, 3).map((c, i) => {
-    const d = h('div', 'tc');
-    const strong = /fort/i.test(c.strength || '');
-    add(d, add(h('div', 'row'), h('span', 'chip ' + (strong ? 'fort' : 'faible'), strong ? 'SIGNAL FORT' : 'SIGNAL FAIBLE'),
-      c.domain ? h('span', 'chip', c.domain) : null),
-      h('h4', null, `${i + 1}. ${c.title || ''}`));
-    [['Fait', c.fact], ['Mécanisme', c.mechanism], ['Effet', c.effect]].forEach(([k, v]) => {
-      if (v) add(d, add(h('p'), h('span', 'k', k + ' : '), document.createTextNode(String(v))));
-    });
-    const refs = srcRefs(cur, [c.fact, c.mechanism, c.effect], c.sources);
-    if (refs) d.append(refs);
-    return d;
-  });
-  if (!els.length) els.push(h('p', 'mut', 'Peu de mouvement : = IDEM'));
-  const d = section('Top 3 des changements', cur.top_changes.length ? (prev ? cur.top_changes.length : null) : 0, els);
+/* --- CHANGEMENTS : fiche technique (compact) ou journal de bord (didactique) --- */
+function changeDetail(cur, c) {
+  const d = h('div', 'cdet');
+  if (c.fact) d.append(h('p', null, c.fact));
+  const dl = h('dl');
+  [['Mécanisme', c.mechanism], ['Effet', c.effect]].forEach(([k, v]) => { if (v) add(dl, h('dt', null, k), h('dd', null, v)); });
+  if (dl.children.length) d.append(dl);
+  const refs = srcRefs(cur, [c.fact, c.mechanism, c.effect], c.sources);
+  if (refs) d.append(refs);
   return d;
 }
+function changesSec(cur, prev) {
+  const yymm = (cur.date || '').slice(5).replace('-', '');
+  const body = [];
+  const sw = h('div', 'modesw');
+  [['compact', 'Compact'], ['journal', 'Journal']].forEach(([m, l]) => {
+    const b = h('button', 'act' + (MODE === m ? ' on' : ''), l);
+    b.onclick = () => { MODE = m; try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* rien */ } render(); };
+    sw.append(b);
+  });
+  body.push(sw);
+  const list = h('div', MODE === 'journal' ? 'log' : 'rows');
+  cur.top_changes.slice(0, 3).forEach((c, i) => {
+    const strong = /fort/i.test(c.strength || '');
+    const dom = cur.domains.find(d => d.name === c.domain || d.id === c.domain);
+    const dcol = dom ? lc(Math.min(3, dom.level | 0)) : 'var(--ink-3)';
+    const code = `${(dom && DCODE[dom.id]) || 'CHG'}-${pad2(i + 1)}`;
+    const color = strong ? 'var(--accent)' : 'var(--l1)';
+    if (MODE === 'journal') {
+      const e = h('div', 'ent'); e.style.setProperty('--c', color);
+      add(e, add(h('div', 'code'), document.createTextNode(`LOG-${yymm}-${pad2(i + 1)} · ${c.domain || ''} · ${strong ? 'fort' : 'faible'}`)),
+        h('div', 'hl', c.title || ''), changeDetail(cur, c));
+      e.querySelector('.code').style.color = color;
+      list.append(e);
+    } else {
+      const r = h('div', 'row');
+      const ctx = h('div', 'ctx');
+      const s = h('span', 'sw'); s.style.background = dcol;
+      add(ctx, s, h('b', null, c.domain || ''), document.createTextNode(` · ${strong ? 'fort' : 'faible'}`));
+      const det = changeDetail(cur, c); det.hidden = true;
+      const tg = h('button', 'act tg', '+');
+      tg.onclick = () => { det.hidden = !det.hidden; tg.textContent = det.hidden ? '+' : '−'; };
+      const cd = h('span', 'code', code); cd.style.color = color;
+      add(r, cd, add(h('div'), h('div', 'hl', c.title || ''), ctx, det), tg);
+      list.append(r);
+    }
+  });
+  if (!cur.top_changes.length) list.append(h('p', 'note', 'Aucun changement significatif : = IDEM.'));
+  body.push(list);
+  return section('CHG', 'Changements', prev ? cur.top_changes.length : null, cur.top_changes.length, body);
+}
 
-/* --- scénarios --- */
+/* --- DOMAINES : carte stellaire (orbite = niveau, plus près du centre = plus critique) --- */
+function starMapSec(cur, prev) {
+  const pm = new Map((prev ? prev.domains : []).map(x => [x.id || x.name, x]));
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const W = 340, H = 300, cx = 170, cy = 150, R = { 3: 44, 2: 80, 1: 114, 0: 140 };
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, class: 'orbit', role: 'img', 'aria-label': 'Carte des 8 domaines' });
+  [44, 80, 114, 140].forEach(r => svg.append(el('circle', { cx, cy, r, fill: 'none', stroke: 'var(--rule-2)', 'stroke-dasharray': '2 4' })));
+  const lv = Math.max(0, Math.min(4, cur.alert.level | 0));
+  svg.append(el('rect', { x: cx - 5, y: cy - 5, width: 10, height: 10, fill: lc(lv) }));
+  const rows = h('div', 'rows');
+  const rowById = {};
+  let nChg = 0;
+  DORDER.forEach((id, i) => {
+    const d = cur.domains.find(x => x.id === id); if (!d) return;
+    const p = pm.get(id), lvl = Math.max(0, Math.min(3, d.level | 0));
+    const changed = !!prev && (!p || p.level !== d.level || (p.note || '') !== (d.note || ''));
+    if (changed) nChg++;
+    const delta = !prev ? '' : !p ? ' NOUV' : lvl > (p.level | 0) ? ' ▲' : lvl < (p.level | 0) ? ' ▼' : changed ? ' •' : '';
+    const ang = (i * 45 + 22.5) * Math.PI / 180, r = R[lvl];
+    const x = cx + r * Math.sin(ang), y = cy - r * Math.cos(ang);
+    const g = el('g', { class: 'planet' + (changed ? ' chg' : ''), tabindex: '0' });
+    if (changed) g.append(el('rect', { x: x - 7, y: y - 7, width: 14, height: 14, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1 }));
+    g.append(el('rect', { x: x - 4, y: y - 4, width: 8, height: 8, fill: lc(lvl) }));
+    const right = x >= cx;
+    const t = el('text', { x: x + (right ? 11 : -11), y: y + 3, 'text-anchor': right ? 'start' : 'end' });
+    t.textContent = (DCODE[id] || id) + delta;
+    g.append(t);
+    g.addEventListener('click', () => openRow(id));
+    g.addEventListener('keydown', ev => { if (ev.key === 'Enter') openRow(id); });
+    svg.append(g);
+    // ligne correspondante sous la carte
+    const row = h('div', 'row drow' + (changed ? '' : prev ? ' idem' : ''));
+    const cd = h('span', 'code', DCODE[id]); cd.style.color = lc(lvl);
+    const show = !prev || changed;
+    const note = h('div', 'ctx', show ? (d.note || '—') : '= IDEM');
+    const head = h('div', 'hl');
+    add(head, document.createTextNode(d.name || id), mono(` N${lvl}${delta}`, delta.includes('▲') ? 'up' : delta.includes('▼') ? 'dn' : ''));
+    add(row, cd, add(h('div'), head, note));
+    row._toggle = () => { if (!show) note.textContent = note.textContent === '= IDEM' ? '= IDEM · ' + (d.note || '—') : '= IDEM'; };
+    if (!show) row.onclick = row._toggle;
+    rowById[id] = row; rows.append(row);
+  });
+  function openRow(id) {
+    const r = rowById[id]; if (!r) return;
+    Object.values(rowById).forEach(x => x.classList.remove('sel'));
+    r.classList.add('sel'); if (r._toggle && r.classList.contains('idem')) r._toggle();
+    r.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  const lg = h('div', 'legend');
+  [[3, 'N3'], [2, 'N2'], [1, 'N1'], [0, 'N0']].forEach(([v, l]) => { const s = h('span', 'sw'); s.style.background = lc(v); add(lg, add(h('span'), s, mono(l))); });
+  add(lg, add(h('span'), h('span', 'sw ring'), mono('modifié')));
+  return section('DOM', 'Domaines', prev ? nChg : null, 8, [svg, lg, rows], true);
+}
+
+/* --- SCÉNARIOS : grille de chiffres, détail au toucher --- */
 function scenariosSec(cur, prev) {
   const pm = new Map((prev ? prev.scenarios : []).map(s => [s.id || s.name, s]));
   const list = cur.scenarios.slice().sort((a, b) => (num(b.p90) || 0) - (num(a.p90) || 0));
-  let changedCount = 0;
-  const els = list.map(s => {
+  let n = 0;
+  const grid = h('div', 'grid4');
+  add(grid, mono(''), mono('30 j', 'r'), mono('90 j', 'r'), mono('1 an', 'r'));
+  list.forEach((s, i) => {
     const p = pm.get(s.id || s.name);
     const changed = !!prev && (!p || HZ.some(([k]) => num(s[k]) !== num(p[k])) || s.confidence !== p.confidence || s.trigger !== p.trigger);
-    if (changed) changedCount++;
-    const d = h('details', 'sc' + (changed ? ' chg' : ''));
-    const sm = h('summary');
-    const dl90 = !prev ? undefined : (p ? (num(s.p90) || 0) - (num(p.p90) || 0) : null);
-    add(sm, h('span', 'nm', s.name || s.id), h('span', 'p90', num(s.p90) != null ? num(s.p90) + ' %' : '?'),
-      prev ? (changed || !p ? arrow(dl90) : h('span', 'chip', '= IDEM')) : null);
-    d.append(sm);
-    const bd = h('div', 'bd');
-    const hz = h('div', 'hz');
-    HZ.forEach(([k, lab]) => {
-      const v = s[k] || {};
-      const dd = !prev ? undefined : (p ? (num(s[k]) || 0) - (num(p[k]) || 0) : null);
-      const box = h('div');
-      add(box, h('small', null, lab), h('b', null, num(s[k]) != null ? num(s[k]) + ' %' : '?'),
-        v.lo != null ? h('div', 'r', `(${v.lo}–${v.hi})`) : null, prev ? arrow(dd) : null);
-      hz.append(box);
+    if (changed) n++;
+    const name = h('button', 'gname');
+    const cd = h('span', 'code', `SCN-${pad2(i + 1)} `);
+    add(name, cd, document.createTextNode(s.name || s.id));
+    grid.append(name);
+    HZ.forEach(([k]) => {
+      const v = num(s[k]), d = !prev ? 0 : p ? (v || 0) - (num(p[k]) || 0) : 0;
+      grid.append(h('span', 'gnum' + (d > 0 ? ' up' : d < 0 ? ' dn' : ''), v != null ? String(v) : '?'));
     });
-    bd.append(hz);
+    const det = h('div', 'gdet'); det.hidden = true;
     const c = Math.max(0, Math.min(3, s.confidence | 0));
-    add(bd, add(h('p'), h('span', 'mut', 'Confiance : '), h('span', 'conf', '●'.repeat(c) + '○'.repeat(3 - c))));
-    if (s.trigger) add(bd, add(h('p'), h('span', 'mut', 'Déclencheur : '), document.createTextNode(s.trigger)));
-    if (s.justification) bd.append(h('p', 'mut', s.justification));
-    bd.append(srcRefs(cur, [s.justification, s.trigger]) || h('p', 'mut', 'Sources : aucune citée pour ce scénario.'));
-    d.append(bd);
-    return d;
+    const dl = h('dl');
+    add(dl, h('dt', null, 'Fourchettes'), h('dd', null, HZ.map(([k, l]) => `${l} : ${(s[k] || {}).lo ?? '?'}–${(s[k] || {}).hi ?? '?'} %`).join(' · ')),
+      h('dt', null, 'Confiance'), h('dd', null, `${c}/3`),
+      s.trigger ? h('dt', null, 'Déclencheur') : null, s.trigger ? h('dd', null, s.trigger) : null,
+      s.justification ? h('dt', null, 'Pourquoi') : null, s.justification ? h('dd', null, s.justification) : null);
+    add(det, dl, srcRefs(cur, [s.justification, s.trigger]));
+    grid.append(det);
+    name.onclick = () => { det.hidden = !det.hidden; };
   });
-  return section('Scénarios (probabilités)', prev ? changedCount : null, els);
+  return section('SCN', 'Scénarios', prev ? n : null, list.length, [grid, h('p', 'note', 'Probabilités en %. Bleu : en baisse, orange : en hausse. Toucher un scénario pour le détail.')]);
 }
 
-/* --- impacts --- */
+/* --- IMPACTS : matrice à filets internes --- */
 function impactsSec(cur, prev) {
   const pm = new Map((prev ? prev.impacts : []).map(r => [r.scenario_id || r.scenario, r]));
   const name = id => { const s = cur.scenarios.find(x => (x.id || x.name) === id); return s ? (s.name || id) : id; };
-  const tbl = h('table'), thead = h('thead'), hr = h('tr');
-  hr.append(h('th', null, 'Scénario'));
-  IMPACTS.forEach(([, l]) => hr.append(h('th', null, l)));
-  tbl.append(add(thead, hr));
-  const tb = h('tbody'); let changedRows = 0;
+  // mêmes codes SCN-xx que la section Scénarios (tri par probabilité à 90 jours)
+  const order = cur.scenarios.slice().sort((a, b) => (num(b.p90) || 0) - (num(a.p90) || 0)).map(s => s.id || s.name);
+  const tbl = h('table', 'mx'), tr0 = h('tr');
+  tr0.append(h('th', null, ''));
+  IMPACTS.forEach(([, l]) => tr0.append(h('th', null, l)));
+  tbl.append(add(h('thead'), tr0));
+  const tb = h('tbody'); let n = 0;
   cur.impacts.forEach(r => {
     const id = r.scenario_id || r.scenario, p = pm.get(id);
     const rowChanged = !!prev && (!p || IMPACTS.some(([k]) => (r[k] | 0) !== (p[k] | 0)));
-    if (rowChanged) changedRows++;
+    if (rowChanged) n++;
     const tr = h('tr', prev && !rowChanged ? 'idem' : '');
-    tr.append(h('td', null, name(id)));
+    const first = h('td', 'mxname'); first.title = name(id);
+    add(first, h('span', 'code', `SCN-${pad2(order.indexOf(id) + 1)} `), h('span', 'mxn', name(id)));
+    tr.append(first);
     IMPACTS.forEach(([k]) => {
       const v = Math.max(0, Math.min(3, r[k] | 0));
       const td = h('td', prev && p && (p[k] | 0) !== v ? 'cc' : '');
-      if (v === 0) td.textContent = '–'; else { const dt = h('span', 'dot'); dt.style.background = lc(v); dt.title = ['', 'faible', 'moyen', 'élevé'][v]; td.append(dt); }
+      if (v === 0) td.textContent = '·'; else { const s = h('span', 'sw'); s.style.background = lc(v); s.title = ['', 'faible', 'moyen', 'élevé'][v]; td.append(s); }
       tr.append(td);
     });
     tb.append(tr);
   });
   tbl.append(tb);
-  const els = cur.impacts.length ? [add(h('div', 'tw'), tbl), impactLegend()] : [h('p', 'mut', 'Aucun impact renseigné.')];
-  return section('Impacts quotidiens', prev ? changedRows : null, els);
+  const lg = h('div', 'legend');
+  [[1, 'faible'], [2, 'moyen'], [3, 'élevé']].forEach(([v, l]) => { const s = h('span', 'sw'); s.style.background = lc(v); add(lg, add(h('span'), s, mono(l))); });
+  add(lg, add(h('span'), h('span', 'sw ring'), mono('changement')), add(h('span'), mono('· aucun')));
+  return section('IMP', 'Impacts', prev ? n : null, cur.impacts.length, cur.impacts.length ? [add(h('div', 'tw'), tbl), lg] : [h('p', 'note', '—')]);
 }
 
-/* --- indicateurs --- */
+/* --- INDICATEURS --- */
 function indicatorsSec(cur, prev) {
   const pm = new Map((prev ? prev.indicators : []).map(i => [i.name, i]));
   let n = 0;
-  const els = cur.indicators.map(i => {
+  const rows = h('div', 'rows');
+  cur.indicators.forEach((i, k) => {
     const p = pm.get(i.name);
-    const ch = !!prev && (!p || p.current !== i.current || p.status !== i.status);
-    if (ch) n++;
-    const d = h('div', 'ind');
+    if (!!prev && (!p || p.current !== i.current || p.status !== i.status)) n++;
     const st = String(i.status || '');
-    const cls = /franchi/i.test(st) ? 'fort' : /approche/i.test(st) ? 'faible' : '';
-    add(d, add(h('div', 'l1'), h('span', null, i.name), h('span', 'chip ' + cls, st || '—')),
-      h('div', 'l2', `Actuel : ${i.current ?? '—'}${p && p.current !== i.current ? ` (avant : ${p.current})` : ''}`),
-      h('div', 'l2', `▲ monte si : ${i.up ?? '—'}  ·  ▼ baisse si : ${i.down ?? '—'}`));
-    return d;
+    const col = /franchi/i.test(st) ? 'var(--l3)' : /approche/i.test(st) ? 'var(--accent)' : 'var(--ink-3)';
+    const r = h('div', 'row');
+    const cd = h('span', 'code', `IND-${pad2(k + 1)}`); cd.style.color = col;
+    add(r, cd, add(h('div'), add(h('div', 'hl'), document.createTextNode(i.name + ' '), tag(st.toUpperCase() || '—', col)),
+      h('div', 'ctx', `Actuel : ${i.current ?? '—'}${p && p.current !== i.current ? `  (avant : ${p.current})` : ''}`),
+      mono(`▲ si ${i.up ?? '—'} · ▼ si ${i.down ?? '—'}`)));
+    rows.append(r);
   });
-  return section('Indicateurs à surveiller', prev ? n : null, els.length ? els : [h('p', 'mut', '—')]);
+  return section('IND', 'Indicateurs', prev ? n : null, cur.indicators.length, [rows]);
 }
 
-/* --- actions --- */
+/* --- ÉTAPES À MENER --- */
 function actionsSec(cur, prev) {
   const lv = cur.alert.level | 0;
-  const pk = new Set((prev ? prev.actions : []).map(a => `${a.level}|${a.text}`));
-  const prevStatus = new Map((prev ? prev.actions : []).map(a => [`${a.level}|${a.text}`, a.status]));
-  const ico = { fait: '✅', afaire: '⬜', interdit: '⛔' };
-  const prio = { urgent: '🔥', mois: '⏳', plus_tard: '📅' };
+  const pk = new Map((prev ? prev.actions : []).map(a => [`${a.level}|${a.text}`, a.status]));
+  const ST = { fait: ['FAIT', 'var(--l0)'], afaire: ['À FAIRE', 'var(--ink)'], interdit: ['À ÉVITER', 'var(--l3)'] };
+  const PR = { urgent: ['URGENT', 'var(--accent)'], mois: ['CE MOIS', 'var(--ink-3)'], plus_tard: ['PLUS TARD', 'var(--ink-3)'] };
   let n = 0;
   const mk = a => {
-    const k = `${a.level}|${a.text}`;
-    const isNew = !!prev && !pk.has(k);
-    const statusChg = !!prev && pk.has(k) && prevStatus.get(k) !== a.status;
-    if (isNew || statusChg) n++;
-    const r = h('div', 'li');
-    add(r, h('span', 'ico', ico[a.status] || '⬜'),
-      h('span', 'tx', a.text), isNew ? h('span', 'chip chg', '🆕') : statusChg ? h('span', 'chip chg', 'mis à jour') : null,
-      a.priority && prio[a.priority] ? h('span', null, prio[a.priority]) : null);
+    const k = `${a.level}|${a.text}`, isNew = !!prev && !pk.has(k), stChg = !!prev && pk.has(k) && pk.get(k) !== a.status;
+    if (isNew || stChg) n++;
+    const [stl, stc] = ST[a.status] || ST.afaire;
+    const r = h('div', 'row arow');
+    add(r, tag(stl, stc), add(h('div'), h('div', 'ctx strong', a.text),
+      add(h('div', 'tags'), a.priority && PR[a.priority] ? tag(PR[a.priority][0], PR[a.priority][1]) : null,
+        isNew ? tag('NOUV', 'var(--accent)') : stChg ? tag('MIS À JOUR', 'var(--accent)') : null)));
     return r;
   };
   const els = [];
-  const focus = [lv, Math.min(4, lv + 1)];
-  focus.forEach((L, i) => {
-    const items = cur.actions.filter(a => (a.level | 0) === L);
+  [lv, Math.min(4, lv + 1)].forEach((L, i) => {
     els.push(h('div', 'grp', `${i === 0 ? 'Niveau actuel' : 'Niveau suivant'} · N${L}`));
-    els.push(...(items.length ? items.map(mk) : [h('p', 'mut', '—')]));
+    const items = cur.actions.filter(a => (a.level | 0) === L);
+    els.push(add(h('div', 'rows'), items.length ? items.map(mk) : [h('p', 'note', '—')]));
   });
-  const others = cur.actions.filter(a => !focus.includes(a.level | 0));
+  const others = cur.actions.filter(a => ![lv, lv + 1].includes(a.level | 0));
   if (others.length) {
-    const dd = h('details');
-    dd.append(h('summary', 'mut', `Autres niveaux : = IDEM (${others.length}) — afficher`));
-    others.forEach(a => dd.append(mk(a)));
+    const dd = h('details', 'sub');
+    dd.append(h('summary', 'act', `Autres niveaux (${others.length})`), add(h('div', 'rows'), others.map(mk)));
     els.push(dd);
   }
-  els.push(h('p', 'mut', '✅ fait · ⬜ à faire · ⛔ à ne pas faire · 🔥 urgent · ⏳ ce mois · 📅 plus tard'));
-  return section('Étapes à mener', prev ? n : null, els);
+  return section('ACT', 'Étapes à mener', prev ? n : null, cur.actions.length, els);
 }
 
-/* --- hypothèses --- */
+/* --- HYPOTHÈSES --- */
 function hypSec(cur, prev) {
-  const ico = { juste: '✅', faux: '❌', indetermine: '❓', nouveau: '🆕' };
+  const V = { juste: ['JUSTE', 'var(--l0)'], faux: ['FAUX', 'var(--l3)'], indetermine: ['INDÉT.', 'var(--ink-3)'], nouveau: ['NOUV', 'var(--accent)'] };
   const pk = new Set((prev ? prev.hypotheses : []).map(x => x.text));
   let n = 0;
-  const els = cur.hypotheses.map(x => {
-    const isNew = !!prev && !pk.has(x.text);
-    if (isNew || x.verdict === 'juste' || x.verdict === 'faux') n++;
-    const r = h('div', 'li');
-    const tx = h('span', 'tx');
-    add(tx, document.createTextNode(String(x.text || '')),
-      x.comment ? h('div', 'mut', x.comment) : null,
-      x.eval_date ? h('div', 'mut', 'À évaluer le ' + fmtDate(x.eval_date)) : null);
-    add(r, h('span', 'ico', ico[x.verdict] || '❓'), tx);
-    return r;
+  const rows = h('div', 'rows');
+  cur.hypotheses.forEach(x => {
+    if ((!!prev && !pk.has(x.text)) || x.verdict === 'juste' || x.verdict === 'faux') n++;
+    const [vl, vc] = V[x.verdict] || V.indetermine;
+    const r = h('div', 'row arow');
+    add(r, tag(vl, vc), add(h('div'), h('div', 'ctx strong', x.text || ''),
+      x.comment ? h('div', 'ctx', x.comment) : null, x.eval_date ? mono('Échéance ' + fmtDate(x.eval_date)) : null));
+    rows.append(r);
   });
-  return section('Journal des hypothèses', prev ? n : null, els.length ? els : [h('p', 'mut', '—')]);
+  return section('HYP', 'Hypothèses', prev ? n : null, cur.hypotheses.length, [rows]);
 }
 
-/* --- sources --- */
+/* --- SOURCES --- */
 function sourcesSec(cur) {
-  const els = cur.sources.map(s => {
-    const p = h('div', 'src');
-    p.append(document.createTextNode(`[${s.n}] ${s.title || ''}${s.publisher ? ' — ' + s.publisher : ''}${s.date ? ' (' + s.date + ')' : ''} `));
+  const rows = h('div', 'rows');
+  cur.sources.forEach(s => {
+    const r = h('div', 'row srow');
+    const body = h('div', 'ctx');
+    body.append(document.createTextNode(`${s.title || ''}${s.publisher ? ' — ' + s.publisher : ''}${s.date ? ' (' + s.date + ')' : ''} `));
     if (typeof s.url === 'string' && /^https:\/\//i.test(s.url)) {
-      const a = h('a', null, 'ouvrir'); a.href = s.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; p.append(a);
+      const a = h('a', 'act', 'Ouvrir'); a.href = s.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; body.append(a);
     }
-    return p;
+    add(r, h('span', 'code', `[${s.n}]`), body);
+    rows.append(r);
   });
   const d = h('details', 'sec');
-  add(d, add(h('summary'), h('span', 'st', 'Sources'), h('span', 'chip', String(cur.sources.length))),
-    add(h('div', 'sbody'), els.length ? els : [h('p', 'mut', '—')]));
+  add(d, add(h('summary', 'sh'), h('span', 'scode', 'SRC'), h('span', 'stitle', 'Sources'), h('span', 'sstat', ''), h('span', 'scount', String(cur.sources.length)), h('span', 'stog')),
+    add(h('div', 'sbody'), cur.sources.length ? [rows] : [h('p', 'note', '—')]));
   return d;
 }
 
