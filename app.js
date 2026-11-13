@@ -94,13 +94,14 @@ let MODE = 'compact';
 try { MODE = localStorage.getItem(MODE_KEY) === 'journal' ? 'journal' : 'compact'; } catch (e) { /* stockage indisponible */ }
 const pad2 = n => String(n).padStart(2, '0');
 const mono = (t, cls) => h('span', 'mono' + (cls ? ' ' + cls : ''), t);
+function chgTag(isNew) { return tag(isNew ? 'NOUV' : 'MODIF.', 'var(--accent)'); }
 function tag(t, color) { const s = h('span', 'tag', t); if (color) s.style.color = color; return s; }
 
 /* --- section : filet pleine largeur, code + titre + état + compteur + ± --- */
 function section(code, title, status, count, bodyEls, open = false) {
   const d = h('details', 'sec');
   const s = h('summary', 'sh');
-  const st = status === null ? 'RÉF.' : status > 0 ? `▲ ${status}` : '= IDEM';
+  const st = status === null ? 'RÉF.' : status > 0 ? `${status} MODIF.` : '= IDEM';
   add(s, h('span', 'scode', code), h('span', 'stitle', title),
     h('span', 'sstat' + (status > 0 ? ' chg' : ''), st), count != null ? h('span', 'scount', String(count)) : null,
     h('span', 'stog'));
@@ -304,7 +305,7 @@ function starMapSec(cur, prev) {
     g.addEventListener('keydown', ev => { if (ev.key === 'Enter') openRow(id); });
     svg.append(g);
     // ligne correspondante sous la carte
-    const row = h('div', 'row drow' + (changed ? '' : prev ? ' idem' : ''));
+    const row = h('div', 'row drow' + (changed ? ' chg' : prev ? ' idem' : ''));
     const cd = h('span', 'code', DCODE[id]); cd.style.color = lc(lvl);
     const show = !prev || changed;
     const note = h('div', 'ctx', show ? (d.note || '—') : '= IDEM');
@@ -338,9 +339,9 @@ function scenariosSec(cur, prev) {
     const p = pm.get(s.id || s.name);
     const changed = !!prev && (!p || HZ.some(([k]) => num(s[k]) !== num(p[k])) || s.confidence !== p.confidence || s.trigger !== p.trigger);
     if (changed) n++;
-    const name = h('button', 'gname');
+    const name = h('button', 'gname' + (changed ? ' chg' : ''));
     const cd = h('span', 'code', `SCN-${pad2(i + 1)} `);
-    add(name, cd, document.createTextNode(s.name || s.id));
+    add(name, changed ? chgTag(!p) : null, cd, document.createTextNode(s.name || s.id));
     grid.append(name);
     HZ.forEach(([k]) => {
       const v = num(s[k]), d = !prev ? 0 : p ? (v || 0) - (num(p[k]) || 0) : 0;
@@ -375,7 +376,7 @@ function impactsSec(cur, prev) {
     const id = r.scenario_id || r.scenario, p = pm.get(id);
     const rowChanged = !!prev && (!p || IMPACTS.some(([k]) => (r[k] | 0) !== (p[k] | 0)));
     if (rowChanged) n++;
-    const tr = h('tr', prev && !rowChanged ? 'idem' : '');
+    const tr = h('tr', prev ? (rowChanged ? 'chg' : 'idem') : '');
     const first = h('td', 'mxname'); first.title = name(id);
     add(first, h('span', 'code', `SCN-${pad2(order.indexOf(id) + 1)} `), h('span', 'mxn', name(id)));
     tr.append(first);
@@ -401,13 +402,17 @@ function indicatorsSec(cur, prev) {
   const rows = h('div', 'rows');
   cur.indicators.forEach((i, k) => {
     const p = pm.get(i.name);
-    if (!!prev && (!p || p.current !== i.current || p.status !== i.status)) n++;
+    const changed = !!prev && (!p || p.current !== i.current || p.status !== i.status);
+    if (changed) n++;
     const st = String(i.status || '');
     const col = /franchi/i.test(st) ? 'var(--l3)' : /approche/i.test(st) ? 'var(--accent)' : 'var(--ink-3)';
-    const r = h('div', 'row');
+    const r = h('div', 'row' + (changed ? ' chg' : ''));
     const cd = h('span', 'code', `IND-${pad2(k + 1)}`); cd.style.color = col;
-    add(r, cd, add(h('div'), add(h('div', 'hl'), document.createTextNode(i.name + ' '), tag(st.toUpperCase() || '—', col)),
-      h('div', 'ctx', `Actuel : ${i.current ?? '—'}${p && p.current !== i.current ? `  (avant : ${p.current})` : ''}`),
+    const cur1 = h('div', 'ctx');
+    add(cur1, document.createTextNode('Actuel : '), h(changed ? 'b' : 'span', null, String(i.current ?? '—')),
+      p && p.current !== i.current ? h('span', 'was', `  avant : ${p.current}`) : null);
+    add(r, cd, add(h('div'), add(h('div', 'hl'), changed ? chgTag(!p) : null, document.createTextNode(i.name + ' '), tag(st.toUpperCase() || '—', col)),
+      cur1,
       mono(`▲ si ${i.up ?? '—'} · ▼ si ${i.down ?? '—'}`)));
     rows.append(r);
   });
@@ -425,7 +430,7 @@ function actionsSec(cur, prev) {
     const k = `${a.level}|${a.text}`, isNew = !!prev && !pk.has(k), stChg = !!prev && pk.has(k) && pk.get(k) !== a.status;
     if (isNew || stChg) n++;
     const [stl, stc] = ST[a.status] || ST.afaire;
-    const r = h('div', 'row arow');
+    const r = h('div', 'row arow' + (isNew || stChg ? ' chg' : ''));
     add(r, tag(stl, stc), add(h('div'), h('div', 'ctx strong', a.text),
       add(h('div', 'tags'), a.priority && PR[a.priority] ? tag(PR[a.priority][0], PR[a.priority][1]) : null,
         isNew ? tag('NOUV', 'var(--accent)') : stChg ? tag('MIS À JOUR', 'var(--accent)') : null)));
@@ -449,13 +454,15 @@ function actionsSec(cur, prev) {
 /* --- HYPOTHÈSES --- */
 function hypSec(cur, prev) {
   const V = { juste: ['JUSTE', 'var(--l0)'], faux: ['FAUX', 'var(--l3)'], indetermine: ['INDÉT.', 'var(--ink-3)'], nouveau: ['NOUV', 'var(--accent)'] };
-  const pk = new Set((prev ? prev.hypotheses : []).map(x => x.text));
+  const pm = new Map((prev ? prev.hypotheses : []).map(x => [x.text, x]));
   let n = 0;
   const rows = h('div', 'rows');
   cur.hypotheses.forEach(x => {
-    if ((!!prev && !pk.has(x.text)) || x.verdict === 'juste' || x.verdict === 'faux') n++;
+    const p = pm.get(x.text);
+    const changed = !!prev && (!p || p.verdict !== x.verdict || (p.comment || '') !== (x.comment || ''));
+    if (changed) n++;
     const [vl, vc] = V[x.verdict] || V.indetermine;
-    const r = h('div', 'row arow');
+    const r = h('div', 'row arow' + (changed ? ' chg' : ''));
     add(r, tag(vl, vc), add(h('div'), h('div', 'ctx strong', x.text || ''),
       x.comment ? h('div', 'ctx', x.comment) : null, x.eval_date ? mono('Échéance ' + fmtDate(x.eval_date)) : null));
     rows.append(r);

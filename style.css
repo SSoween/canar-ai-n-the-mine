@@ -188,3 +188,13 @@ textarea:focus{border-color:var(--ink);outline:none}
   background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:var(--r);font:500 12px/16px var(--f-m);letter-spacing:.04em;
   opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw;text-align:center}
 #toast.on{opacity:1}
+
+/* éléments modifiés depuis le rapport précédent : filet orange à gauche + étiquette MODIF./NOUV
+   (le compteur « n MODIF. » de l'en-tête de section correspond exactement à ces lignes) */
+.row.chg{border-left:2px solid var(--accent);padding-left:10px;margin-left:-12px}
+.gname.chg{border-left:2px solid var(--accent);padding-left:10px;margin-left:-12px}
+.gname .tag{margin-right:6px}
+.mx tr.chg td:first-child{border-left:2px solid var(--accent);padding-left:8px}
+.hl .tag{vertical-align:2px}
+.ctx b{color:var(--ink)}
+.was{color:var(--ink-3)}
