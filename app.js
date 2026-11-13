@@ -184,7 +184,8 @@ function hud(cur, prev) {
   const lv = Math.max(0, Math.min(4, cur.alert.level | 0));
   const wrap = h('div', 'brief');
   wrap.style.setProperty('--lv', lc(lv));
-  wrap.append(h('div', 'meta', [`Rapport ${fmtDate(cur.date)}`, cur.period, cur.generator && 'source ' + cur.generator].filter(Boolean).join(' · ')));
+  // Le modèle qui a produit le rapport (champ "generator") n'est volontairement pas affiché.
+  wrap.append(h('div', 'meta', [`Rapport ${fmtDate(cur.date)}`, cur.period].filter(Boolean).join(' · ')));
   const box = h('div', 'hud');
   ['tl', 'tr', 'bl', 'br'].forEach(c => box.append(h('span', 'tick ' + c)));
   let line;
