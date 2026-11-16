@@ -43,6 +43,13 @@ RÈGLES DE STABILITÉ (essentielles : l'application compare les rapports mot pou
 - Hypothèses : reprends chaque hypothèse du rapport précédent avec le même "text" et donne
   un verdict (juste, faux, indetermine). Ajoute les nouvelles avec le verdict "nouveau" et une "eval_date".
 
+FOCUS (bloc "focus", s'il existe dans le rapport précédent)
+- Reprends-le à chaque rapport : même "title", mêmes "metrics" (même "name") et mêmes étapes "cascade" (même "stage").
+- Mets à jour une valeur ou un statut UNIQUEMENT si un fait de la période le justifie ; sinon recopie à l'identique.
+- metrics.status : ok, surveille ou alerte. cascade.status : en_cours, surveille ou inactif.
+- Une étape de la cascade ne passe à "en_cours" que sur un fait vérifié (ex. allocation annoncée, stations à sec signalées).
+- Cite les sources entre crochets dans "context" et "effect".
+
 CHAMPS
 - domains : exactement 8, ids geo, energie, supply, cyber, climat, sante, social, prep ;
   level 0 à 3 ; note 120 caractères maximum.
