@@ -152,6 +152,7 @@ function render() {
   $('#dateLbl').textContent = fmtDate(cur.date);
   $('#posLbl').textContent = `${idx + 1}/${reports.length}` + (prev ? ` · vs ${fmtDate(prev.date)}` : ' · référence');
   app.append(hud(cur, prev));
+  const foc = focusSec(cur, prev); if (foc) app.append(foc);
   app.append(changesSec(cur, prev));
   app.append(starMapSec(cur, prev));
   app.append(scenariosSec(cur, prev));
@@ -219,6 +220,55 @@ function hud(cur, prev) {
   if (cur.alert.summary) wrap.append(h('p', 'lede', cur.alert.summary));
   if (prev && lv !== prev.alert.level && cur.alert.change_reason) wrap.append(h('p', 'lede', 'Pourquoi : ' + cur.alert.change_reason));
   return wrap;
+}
+
+/* --- FOCUS : sujet suivi en profondeur (ex. diesel) — quantités disponibles + cascade d'effets par étapes --- */
+function focusSec(cur, prev) {
+  const f = cur.focus; if (!f) return null;
+  const pf = prev && prev.focus && prev.focus.title === f.title ? prev.focus : null;
+  const MS = { ok: ['OK', 'var(--l0)'], surveille: ['À SURVEILLER', 'var(--l1)'], alerte: ['ALERTE', 'var(--accent)'] };
+  const CS = { en_cours: ['EN COURS', 'var(--accent)'], surveille: ['SURVEILLÉ', 'var(--l1)'], inactif: ['INACTIF', 'var(--ink-3)'] };
+  let n = 0;
+  const els = [];
+  if (f.why) els.push(h('p', 'lede fwhy', f.why));
+  // quantités et stocks
+  els.push(h('div', 'grp', 'Quantités et stocks'));
+  const pm = new Map(((pf && pf.metrics) || []).map(m => [m.name, m]));
+  const mrows = h('div', 'rows');
+  (f.metrics || []).forEach((m, k) => {
+    const p = pm.get(m.name), changed = !!pf && (!p || p.value !== m.value || p.status !== m.status);
+    if (changed) n++;
+    const [sl, sc] = MS[m.status] || MS.surveille;
+    const r = h('div', 'row frow' + (changed ? ' chg' : ''));
+    const cd = h('span', 'code', `STK-${pad2(k + 1)}`); cd.style.color = sc;
+    const body = h('div');
+    add(body, add(h('div', 'fname'), changed ? chgTag(!p) : null, document.createTextNode(m.name + ' '), tag(sl, sc)),
+      add(h('div', 'fval'), h('b', null, m.value), p && p.value !== m.value ? h('span', 'was', `  avant : ${p.value}`) : null),
+      m.context ? h('div', 'ctx', m.context) : null);
+    add(r, cd, body);
+    mrows.append(r);
+  });
+  els.push(mrows);
+  // cascade
+  const active = (f.cascade || []).filter(c => c.status === 'en_cours').length;
+  els.push(h('div', 'grp', `Cascade · ${active} étape${active > 1 ? 's' : ''} en cours sur ${(f.cascade || []).length}`));
+  const pc = new Map(((pf && pf.cascade) || []).map(c => [c.stage, c]));
+  const casc = h('div', 'casc');
+  (f.cascade || []).forEach(c => {
+    const p = pc.get(c.stage), changed = !!pf && (!p || p.status !== c.status || p.effect !== c.effect);
+    if (changed) n++;
+    const [sl, sc] = CS[c.status] || CS.inactif;
+    const st = h('div', 'stage ' + (c.status || 'inactif') + (changed ? ' chg' : ''));
+    st.style.setProperty('--c', sc);
+    add(st, add(h('div', 'shead'), h('span', 'code', c.stage), mono(c.delay || ''), tag(sl, sc), changed ? chgTag(!p) : null),
+      h('div', 'hl', c.label || ''), h('div', 'ctx', c.effect || ''));
+    casc.append(st);
+  });
+  els.push(casc);
+  if (f.note) els.push(h('p', 'note', f.note));
+  const refs = srcRefs(cur, [...(f.metrics || []).map(m => m.context), ...(f.cascade || []).map(c => c.effect)], [], 'Sources');
+  if (refs) els.push(refs);
+  return section('FOC', `Focus · ${f.title}`, prev ? n : null, `${active}/${(f.cascade || []).length}`, els, true);
 }
 
 /* --- CHANGEMENTS : fiche technique (compact) ou journal de bord (didactique) --- */

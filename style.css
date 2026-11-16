@@ -198,3 +198,19 @@ textarea:focus{border-color:var(--ink);outline:none}
 .hl .tag{vertical-align:2px}
 .ctx b{color:var(--ink)}
 .was{color:var(--ink-3)}
+
+/* FOCUS (ex. diesel) : quantités en lignes, cascade en étapes sur un rail */
+.fwhy{margin:0 0 4px;font-size:14px;line-height:20px}
+.row.frow{grid-template-columns:52px 1fr}
+.fname{font:600 14px/20px var(--f-b)}
+.fname .tag{margin-left:6px;vertical-align:1px}
+.fval b{font:600 20px/26px var(--f-d);font-stretch:112%;font-variant-numeric:tabular-nums}
+.casc{position:relative;margin:4px 0 0 4px;padding-left:18px;border-left:1px solid var(--rule-2)}
+.stage{position:relative;padding:8px 0 12px}
+.stage::before{content:"";position:absolute;left:-23px;top:13px;width:9px;height:9px;border:1px solid var(--c);background:var(--paper)}
+.stage.en_cours::before{background:var(--c)}
+.stage.inactif .hl,.stage.inactif .ctx{color:var(--ink-3)}
+.stage.chg{border-left:2px solid var(--accent);padding-left:10px;margin-left:-12px}
+.stage.chg::before{left:-11px}
+.shead{display:flex;align-items:baseline;gap:10px}
+.shead .tag{margin:0}
