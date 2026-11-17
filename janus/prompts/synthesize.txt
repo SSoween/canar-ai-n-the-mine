@@ -43,6 +43,14 @@ RÈGLES DE STABILITÉ (essentielles : l'application compare les rapports mot pou
 - Hypothèses : reprends chaque hypothèse du rapport précédent avec le même "text" et donne
   un verdict (juste, faux, indetermine). Ajoute les nouvelles avec le verdict "nouveau" et une "eval_date".
 
+THÉÂTRES (bloc "theaters", OBLIGATOIRE à chaque rapport)
+- Couvre toujours les 5 régions, avec ces ids : mo (Moyen-Orient), ru (Russie – Ukraine), ap (Asie – Pacifique),
+  eu (Europe – OTAN), am (Amériques). Ajoute "af" (Afrique) seulement si un fait majeur le justifie.
+- Pour chaque région : niveau 0 à 3 et une note de 260 caractères maximum, avec les faits de la période et leurs sources [n].
+- Ne laisse pas l'énergie absorber la géopolitique : un sommet, une frappe majeure, une crise diplomatique ou militaire
+  doit apparaître dans son théâtre même s'il n'a pas d'effet direct sur les prix.
+- Région sans fait nouveau : même niveau et même note, recopiés à l'identique.
+
 FOCUS (bloc "focus", s'il existe dans le rapport précédent)
 - Reprends-le à chaque rapport : même "title", mêmes "metrics" (même "name") et mêmes étapes "cascade" (même "stage").
 - Mets à jour une valeur ou un statut UNIQUEMENT si un fait de la période le justifie ; sinon recopie à l'identique.
