@@ -1,45 +1,475 @@
 {
   "_comment": "Sources recommandées (monde, focus Canada/Québec). verifie=true : testé le 2026-10-30 sans JavaScript. verifie=false : à confirmer au premier run de fetch_sources.py. L'ordre fixe les numéros [n] : ajoute les nouvelles sources à la FIN, ne réordonne jamais.",
   "sources": [
-    { "id": "un-news", "title": "UN News", "publisher": "Nations Unies", "url": "https://news.un.org/en/news", "domains": ["geo", "climat", "sante"], "verifie": true },
-    { "id": "pmo-news", "title": "Nouvelles du premier ministre (RSS)", "publisher": "Cabinet du premier ministre du Canada", "url": "https://www.pm.gc.ca/en/news.rss", "domains": ["prep", "geo"], "verifie": true },
-    { "id": "gc-publicsafety", "title": "Communiqués de Sécurité publique Canada (Atom)", "publisher": "Gouvernement du Canada", "url": "https://api.io.canada.ca/io-server/gc/news/en/v2?dept=publicsafetycanada&type=newsreleases&sort=publishedDate&orderBy=desc&pick=30&format=atom", "domains": ["prep", "cyber"], "verifie": true },
-    { "id": "cccs-alerts", "title": "Alertes et avis", "publisher": "Centre canadien pour la cybersécurité", "url": "https://www.cyber.gc.ca/en/alerts-advisories", "domains": ["cyber"], "verifie": true },
-    { "id": "boc-press", "title": "Communiqués de presse", "publisher": "Banque du Canada", "url": "https://www.bankofcanada.ca/press/press-releases/", "domains": ["social", "energie"], "verifie": true },
-    { "id": "statcan-daily", "title": "Le Quotidien", "publisher": "Statistique Canada", "url": "https://www150.statcan.gc.ca/n1/dai-quo/index-eng.htm", "domains": ["social", "supply"], "verifie": true },
-    { "id": "eia-wpsr", "title": "Weekly Petroleum Status Report", "publisher": "U.S. Energy Information Administration", "url": "https://www.eia.gov/petroleum/supply/weekly/", "domains": ["energie", "supply"], "verifie": true },
-    { "id": "eia-heating", "title": "Heating Oil and Propane Update (oct.–mars)", "publisher": "U.S. Energy Information Administration", "url": "https://www.eia.gov/petroleum/heatingoilpropane/", "domains": ["energie"], "verifie": true },
-    { "id": "hydroquebec-news", "title": "Salle de nouvelles (RSS)", "publisher": "Hydro-Québec", "url": "https://news.hydroquebec.com/news/rss/5/salle-de-nouvelles", "domains": ["energie", "climat"], "verifie": true },
-    { "id": "gc-nrcan", "title": "Communiqués de Ressources naturelles Canada (Atom)", "publisher": "Gouvernement du Canada", "url": "https://api.io.canada.ca/io-server/gc/news/en/v2?dept=naturalresourcescanada&sort=publishedDate&orderBy=desc&pick=30&format=atom", "domains": ["energie"], "verifie": true },
-    { "id": "iea-press", "title": "Communiqués de presse", "publisher": "Agence internationale de l'énergie", "url": "https://www.iea.org/news?type=press-release", "domains": ["energie", "prep"], "verifie": true },
-    { "id": "fao-ffpi", "title": "Indice FAO des prix des produits alimentaires", "publisher": "FAO", "url": "https://www.fao.org/worldfoodsituation/foodpricesindex/en/", "domains": ["supply", "social"], "verifie": true },
-    { "id": "drought-monitor", "title": "Moniteur des sécheresses au Canada", "publisher": "Agriculture et Agroalimentaire Canada", "url": "https://agriculture.canada.ca/en/agricultural-production/weather/canadian-drought-monitor", "domains": ["climat"], "verifie": true },
-    { "id": "who-don", "title": "Disease Outbreak News (API)", "publisher": "Organisation mondiale de la santé", "url": "https://www.who.int/api/news/diseaseoutbreaknews?sf_culture=en&$orderby=PublicationDateAndTime%20desc&$top=10", "domains": ["sante"], "verifie": true },
-    { "id": "gc-phac", "title": "Communiqués de l'Agence de la santé publique (Atom)", "publisher": "Gouvernement du Canada", "url": "https://api.io.canada.ca/io-server/gc/news/en/v2?dept=publichealthagencyofcanada&sort=publishedDate&orderBy=desc&pick=30&format=atom", "domains": ["sante"], "verifie": true },
-    { "id": "quebec-news", "title": "Nouvelles du gouvernement du Québec", "publisher": "Gouvernement du Québec", "url": "https://www.quebec.ca/nouvelles/rechercher", "domains": ["prep", "climat", "social"], "verifie": true },
-    { "id": "eu-commission-news", "title": "News (dont préparation et protection civile)", "publisher": "Commission européenne", "url": "https://commission.europa.eu/news-and-media/news_en", "domains": ["prep", "geo"], "verifie": true },
-    { "id": "aljazeera-rss", "title": "Al Jazeera, fil général (RSS)", "publisher": "Al Jazeera", "url": "https://www.aljazeera.com/xml/rss/all.xml", "domains": ["geo", "energie"], "verifie": false },
-    { "id": "cbc-world-rss", "title": "CBC World (RSS)", "publisher": "CBC News", "url": "https://www.cbc.ca/webfeed/rss/rss-world", "domains": ["geo", "social"], "verifie": false },
-    { "id": "ukmto-warnings", "title": "Avertissements maritimes (Golfe, Ormuz, mer Rouge)", "publisher": "UKMTO (institutionnel britannique : confirme les incidents)", "url": "https://www.ukmto.org/ukmto-products/warnings", "domains": ["geo", "supply"], "verifie": false, "_note": "Souvent vide sans JavaScript lors du test du 30/10 ; garder si le premier run renvoie du texte." },
-    { "id": "centcom-press", "title": "Communiqués de presse", "publisher": "CENTCOM (partie au conflit : à recouper)", "url": "https://www.centcom.mil/MEDIA/PRESS-RELEASES/", "domains": ["geo"], "verifie": false, "_note": "Le site peut bloquer les requêtes automatiques." },
-    { "id": "tasnim-en", "title": "Tasnim News (anglais)", "publisher": "Tasnim (agence iranienne semi-officielle proche de l'IRGC : signal faible, à recouper)", "url": "https://www.tasnimnews.com/en", "domains": ["geo"], "verifie": false, "_note": "Si échec, tester https://tasnimnews.ir/en (URL fournie par l'utilisateur)." },
-    { "id": "fars-en", "title": "Fars News (anglais)", "publisher": "Fars (agence iranienne semi-officielle : signal faible, à recouper)", "url": "https://www.farsnews.ir/en", "domains": ["geo"], "verifie": false },
-    { "id": "dawn-rss", "title": "Dawn, fil principal (RSS)", "publisher": "Dawn (quotidien pakistanais de référence)", "url": "https://www.dawn.com/feeds/home", "domains": ["geo"], "verifie": false },
-    { "id": "malaymail-world", "title": "Malay Mail, monde (reprises AFP)", "publisher": "Malay Mail / AFP", "url": "https://www.malaymail.com/news/world", "domains": ["geo", "energie"], "verifie": false },
-    { "id": "isw-home", "title": "Mises à jour du conflit en Ukraine", "publisher": "Institute for the Study of War (think tank américain)", "url": "https://understandingwar.org/", "domains": ["geo"], "verifie": false },
-    { "id": "ombudsman-ua", "title": "Actualités du Commissaire aux droits humains", "publisher": "Ombudsman d'Ukraine (source officielle, partie au conflit)", "url": "https://ombudsman.gov.ua/en/news", "domains": ["geo"], "verifie": false },
-    { "id": "ecdc-threats", "title": "Rapport hebdomadaire sur les menaces de maladies transmissibles", "publisher": "ECDC (agence européenne)", "url": "https://www.ecdc.europa.eu/en/publications-and-data/monitoring/weekly-threats-reports", "domains": ["sante"], "verifie": false },
-    { "id": "eia-steo", "title": "Short-Term Energy Outlook (page HTML, pas le PDF)", "publisher": "U.S. Energy Information Administration", "url": "https://www.eia.gov/outlooks/steo/", "domains": ["energie"], "verifie": false, "_note": "fetch_sources.py ne lit pas les PDF : la page HTML remplace steo_text.pdf." },
-    { "id": "trendforce-news", "title": "Actualités semi-conducteurs et composants", "publisher": "TrendForce (cabinet d'études)", "url": "https://www.trendforce.com/news/", "domains": ["supply"], "verifie": false },
-    { "id": "govuk-cabinet-office", "title": "Nouvelles du Cabinet Office (Atom), dont la campagne Be Ready", "publisher": "Gouvernement britannique", "url": "https://www.gov.uk/search/news-and-communications.atom?organisations%5B%5D=cabinet-office", "domains": ["prep"], "verifie": false },
-    { "id": "fao-giews", "title": "GIEWS, système mondial d'alerte rapide sur l'alimentation", "publisher": "FAO", "url": "https://www.fao.org/giews/en/", "domains": ["supply", "climat"], "verifie": false },
-    { "id": "wb-food-security", "title": "Food Security Update", "publisher": "Banque mondiale", "url": "https://www.worldbank.org/en/topic/agriculture/brief/food-security-update", "domains": ["supply", "social"], "verifie": false },
-    { "id": "gdacs-rss", "title": "Alertes catastrophes mondiales (RSS)", "publisher": "GDACS (ONU / Commission européenne)", "url": "https://www.gdacs.org/xml/rss.xml", "domains": ["climat"], "verifie": false },
-    { "id": "copernicus-ems", "title": "Activations du service de cartographie rapide", "publisher": "Copernicus Emergency Management Service (UE)", "url": "https://emergency.copernicus.eu/mapping/list-of-activations-rapid", "domains": ["climat"], "verifie": false, "_note": "Peut exiger JavaScript ; à retirer si le premier run est vide." },
-    { "id": "cert-fr-alertes", "title": "Alertes de sécurité (RSS)", "publisher": "CERT-FR / ANSSI", "url": "https://www.cert.ssi.gouv.fr/alerte/feed/", "domains": ["cyber"], "verifie": false },
-    { "id": "fr-guide-risques", "title": "Se préparer aux risques (guide « Tous responsables »)", "publisher": "Gouvernement français", "url": "https://www.info.gouv.fr/risques", "domains": ["prep"], "verifie": false, "_note": "Page peu changeante : c'est un changement de contenu (durée d'autonomie, ton) qui fait signal." },
-    { "id": "bbk-de", "title": "Office fédéral de protection de la population (allemand)", "publisher": "BBK (Allemagne)", "url": "https://www.bbk.bund.de/", "domains": ["prep"], "verifie": false, "_note": "Référence des 10 jours d'autonomie ; page en allemand." },
-    { "id": "inspq-presse", "title": "Centre de presse", "publisher": "INSPQ (Institut national de santé publique du Québec)", "url": "https://www.inspq.qc.ca/centre-de-presse", "domains": ["sante"], "verifie": false, "_note": "Test du 30/10 : page vide sans JavaScript, et /publications renvoyait du contenu de 2020. Si le premier run est vide, chercher le flux RSS « Nouvelles publications » proposé sur le site et remplacer l'URL." }
+    {
+      "id": "un-news",
+      "title": "UN News",
+      "publisher": "Nations Unies",
+      "url": "https://news.un.org/en/news",
+      "domains": [
+        "geo",
+        "climat",
+        "sante"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "pmo-news",
+      "title": "Nouvelles du premier ministre (RSS)",
+      "publisher": "Cabinet du premier ministre du Canada",
+      "url": "https://www.pm.gc.ca/en/news.rss",
+      "domains": [
+        "prep",
+        "geo"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "gc-publicsafety",
+      "title": "Communiqués de Sécurité publique Canada (Atom)",
+      "publisher": "Gouvernement du Canada",
+      "url": "https://api.io.canada.ca/io-server/gc/news/en/v2?dept=publicsafetycanada&type=newsreleases&sort=publishedDate&orderBy=desc&pick=30&format=atom",
+      "domains": [
+        "prep",
+        "cyber"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "cccs-alerts",
+      "title": "Alertes et avis",
+      "publisher": "Centre canadien pour la cybersécurité",
+      "url": "https://www.cyber.gc.ca/en/alerts-advisories",
+      "domains": [
+        "cyber"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "boc-press",
+      "title": "Communiqués de presse",
+      "publisher": "Banque du Canada",
+      "url": "https://www.bankofcanada.ca/press/press-releases/",
+      "domains": [
+        "social",
+        "energie"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "statcan-daily",
+      "title": "Le Quotidien",
+      "publisher": "Statistique Canada",
+      "url": "https://www150.statcan.gc.ca/n1/dai-quo/index-eng.htm",
+      "domains": [
+        "social",
+        "supply"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "eia-wpsr",
+      "title": "Weekly Petroleum Status Report",
+      "publisher": "U.S. Energy Information Administration",
+      "url": "https://www.eia.gov/petroleum/supply/weekly/",
+      "domains": [
+        "energie",
+        "supply"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "eia-heating",
+      "title": "Heating Oil and Propane Update (oct.–mars)",
+      "publisher": "U.S. Energy Information Administration",
+      "url": "https://www.eia.gov/petroleum/heatingoilpropane/",
+      "domains": [
+        "energie"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "hydroquebec-news",
+      "title": "Salle de nouvelles (RSS)",
+      "publisher": "Hydro-Québec",
+      "url": "https://news.hydroquebec.com/news/rss/5/salle-de-nouvelles",
+      "domains": [
+        "energie",
+        "climat"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "gc-nrcan",
+      "title": "Communiqués de Ressources naturelles Canada (Atom)",
+      "publisher": "Gouvernement du Canada",
+      "url": "https://api.io.canada.ca/io-server/gc/news/en/v2?dept=naturalresourcescanada&sort=publishedDate&orderBy=desc&pick=30&format=atom",
+      "domains": [
+        "energie"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "iea-press",
+      "title": "Communiqués de presse",
+      "publisher": "Agence internationale de l'énergie",
+      "url": "https://www.iea.org/news?type=press-release",
+      "domains": [
+        "energie",
+        "prep"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "fao-ffpi",
+      "title": "Indice FAO des prix des produits alimentaires",
+      "publisher": "FAO",
+      "url": "https://www.fao.org/worldfoodsituation/foodpricesindex/en/",
+      "domains": [
+        "supply",
+        "social"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "drought-monitor",
+      "title": "Moniteur des sécheresses au Canada",
+      "publisher": "Agriculture et Agroalimentaire Canada",
+      "url": "https://agriculture.canada.ca/en/agricultural-production/weather/canadian-drought-monitor",
+      "domains": [
+        "climat"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "who-don",
+      "title": "Disease Outbreak News (API)",
+      "publisher": "Organisation mondiale de la santé",
+      "url": "https://www.who.int/api/news/diseaseoutbreaknews?sf_culture=en&$orderby=PublicationDateAndTime%20desc&$top=10",
+      "domains": [
+        "sante"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "gc-phac",
+      "title": "Communiqués de l'Agence de la santé publique (Atom)",
+      "publisher": "Gouvernement du Canada",
+      "url": "https://api.io.canada.ca/io-server/gc/news/en/v2?dept=publichealthagencyofcanada&sort=publishedDate&orderBy=desc&pick=30&format=atom",
+      "domains": [
+        "sante"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "quebec-news",
+      "title": "Nouvelles du gouvernement du Québec",
+      "publisher": "Gouvernement du Québec",
+      "url": "https://www.quebec.ca/nouvelles/rechercher",
+      "domains": [
+        "prep",
+        "climat",
+        "social"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "eu-commission-news",
+      "title": "News (dont préparation et protection civile)",
+      "publisher": "Commission européenne",
+      "url": "https://commission.europa.eu/news-and-media/news_en",
+      "domains": [
+        "prep",
+        "geo"
+      ],
+      "verifie": true
+    },
+    {
+      "id": "aljazeera-rss",
+      "title": "Al Jazeera, fil général (RSS)",
+      "publisher": "Al Jazeera",
+      "url": "https://www.aljazeera.com/xml/rss/all.xml",
+      "domains": [
+        "geo",
+        "energie"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "cbc-world-rss",
+      "title": "CBC World (RSS)",
+      "publisher": "CBC News",
+      "url": "https://www.cbc.ca/webfeed/rss/rss-world",
+      "domains": [
+        "geo",
+        "social"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "ukmto-warnings",
+      "title": "Avertissements maritimes (Golfe, Ormuz, mer Rouge)",
+      "publisher": "UKMTO (institutionnel britannique : confirme les incidents)",
+      "url": "https://www.ukmto.org/ukmto-products/warnings",
+      "domains": [
+        "geo",
+        "supply"
+      ],
+      "verifie": false,
+      "_note": "Souvent vide sans JavaScript lors du test du 30/10 ; garder si le premier run renvoie du texte."
+    },
+    {
+      "id": "centcom-press",
+      "title": "Communiqués de presse",
+      "publisher": "CENTCOM (partie au conflit : à recouper)",
+      "url": "https://www.centcom.mil/MEDIA/PRESS-RELEASES/",
+      "domains": [
+        "geo"
+      ],
+      "verifie": false,
+      "_note": "Le site peut bloquer les requêtes automatiques."
+    },
+    {
+      "id": "tasnim-en",
+      "title": "Tasnim News (anglais)",
+      "publisher": "Tasnim (agence iranienne semi-officielle proche de l'IRGC : signal faible, à recouper)",
+      "url": "https://www.tasnimnews.com/en",
+      "domains": [
+        "geo"
+      ],
+      "verifie": false,
+      "_note": "Si échec, tester https://tasnimnews.ir/en (URL fournie par l'utilisateur)."
+    },
+    {
+      "id": "fars-en",
+      "title": "Fars News (anglais)",
+      "publisher": "Fars (agence iranienne semi-officielle : signal faible, à recouper)",
+      "url": "https://www.farsnews.ir/en",
+      "domains": [
+        "geo"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "dawn-rss",
+      "title": "Dawn, fil principal (RSS)",
+      "publisher": "Dawn (quotidien pakistanais de référence)",
+      "url": "https://www.dawn.com/feeds/home",
+      "domains": [
+        "geo"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "malaymail-world",
+      "title": "Malay Mail, monde (reprises AFP)",
+      "publisher": "Malay Mail / AFP",
+      "url": "https://www.malaymail.com/news/world",
+      "domains": [
+        "geo",
+        "energie"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "isw-home",
+      "title": "Mises à jour du conflit en Ukraine",
+      "publisher": "Institute for the Study of War (think tank américain)",
+      "url": "https://understandingwar.org/",
+      "domains": [
+        "geo"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "ombudsman-ua",
+      "title": "Actualités du Commissaire aux droits humains",
+      "publisher": "Ombudsman d'Ukraine (source officielle, partie au conflit)",
+      "url": "https://ombudsman.gov.ua/en/news",
+      "domains": [
+        "geo"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "ecdc-threats",
+      "title": "Rapport hebdomadaire sur les menaces de maladies transmissibles",
+      "publisher": "ECDC (agence européenne)",
+      "url": "https://www.ecdc.europa.eu/en/publications-and-data/monitoring/weekly-threats-reports",
+      "domains": [
+        "sante"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "eia-steo",
+      "title": "Short-Term Energy Outlook (page HTML, pas le PDF)",
+      "publisher": "U.S. Energy Information Administration",
+      "url": "https://www.eia.gov/outlooks/steo/",
+      "domains": [
+        "energie"
+      ],
+      "verifie": false,
+      "_note": "fetch_sources.py ne lit pas les PDF : la page HTML remplace steo_text.pdf."
+    },
+    {
+      "id": "trendforce-news",
+      "title": "Actualités semi-conducteurs et composants",
+      "publisher": "TrendForce (cabinet d'études)",
+      "url": "https://www.trendforce.com/news/",
+      "domains": [
+        "supply"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "govuk-cabinet-office",
+      "title": "Nouvelles du Cabinet Office (Atom), dont la campagne Be Ready",
+      "publisher": "Gouvernement britannique",
+      "url": "https://www.gov.uk/search/news-and-communications.atom?organisations%5B%5D=cabinet-office",
+      "domains": [
+        "prep"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "fao-giews",
+      "title": "GIEWS, système mondial d'alerte rapide sur l'alimentation",
+      "publisher": "FAO",
+      "url": "https://www.fao.org/giews/en/",
+      "domains": [
+        "supply",
+        "climat"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "wb-food-security",
+      "title": "Food Security Update",
+      "publisher": "Banque mondiale",
+      "url": "https://www.worldbank.org/en/topic/agriculture/brief/food-security-update",
+      "domains": [
+        "supply",
+        "social"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "gdacs-rss",
+      "title": "Alertes catastrophes mondiales (RSS)",
+      "publisher": "GDACS (ONU / Commission européenne)",
+      "url": "https://www.gdacs.org/xml/rss.xml",
+      "domains": [
+        "climat"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "copernicus-ems",
+      "title": "Activations du service de cartographie rapide",
+      "publisher": "Copernicus Emergency Management Service (UE)",
+      "url": "https://emergency.copernicus.eu/mapping/list-of-activations-rapid",
+      "domains": [
+        "climat"
+      ],
+      "verifie": false,
+      "_note": "Peut exiger JavaScript ; à retirer si le premier run est vide."
+    },
+    {
+      "id": "cert-fr-alertes",
+      "title": "Alertes de sécurité (RSS)",
+      "publisher": "CERT-FR / ANSSI",
+      "url": "https://www.cert.ssi.gouv.fr/alerte/feed/",
+      "domains": [
+        "cyber"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "fr-guide-risques",
+      "title": "Se préparer aux risques (guide « Tous responsables »)",
+      "publisher": "Gouvernement français",
+      "url": "https://www.info.gouv.fr/risques",
+      "domains": [
+        "prep"
+      ],
+      "verifie": false,
+      "_note": "Page peu changeante : c'est un changement de contenu (durée d'autonomie, ton) qui fait signal."
+    },
+    {
+      "id": "bbk-de",
+      "title": "Office fédéral de protection de la population (allemand)",
+      "publisher": "BBK (Allemagne)",
+      "url": "https://www.bbk.bund.de/",
+      "domains": [
+        "prep"
+      ],
+      "verifie": false,
+      "_note": "Référence des 10 jours d'autonomie ; page en allemand."
+    },
+    {
+      "id": "inspq-presse",
+      "title": "Centre de presse",
+      "publisher": "INSPQ (Institut national de santé publique du Québec)",
+      "url": "https://www.inspq.qc.ca/centre-de-presse",
+      "domains": [
+        "sante"
+      ],
+      "verifie": false,
+      "_note": "Test du 30/10 : page vide sans JavaScript, et /publications renvoyait du contenu de 2020. Si le premier run est vide, chercher le flux RSS « Nouvelles publications » proposé sur le site et remplacer l'URL."
+    },
+    {
+      "id": "kyivindependent-rss",
+      "title": "The Kyiv Independent (RSS)",
+      "publisher": "The Kyiv Independent (média ukrainien : vérifier les revendications militaires)",
+      "url": "https://kyivindependent.com/news-archive/rss/",
+      "domains": [
+        "geo"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "taipeitimes-rss",
+      "title": "Taipei Times (RSS)",
+      "publisher": "Taipei Times (Taïwan)",
+      "url": "https://www.taipeitimes.com/xml/index.rss",
+      "domains": [
+        "geo"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "thediplomat-rss",
+      "title": "The Diplomat (RSS)",
+      "publisher": "The Diplomat (Asie-Pacifique, analyses : faits datés seulement)",
+      "url": "https://thediplomat.com/feed/",
+      "domains": [
+        "geo"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "euronews-world-rss",
+      "title": "Euronews, monde (RSS)",
+      "publisher": "Euronews",
+      "url": "https://www.euronews.com/rss?level=theme&name=news",
+      "domains": [
+        "geo",
+        "prep"
+      ],
+      "verifie": false
+    },
+    {
+      "id": "apec-news",
+      "title": "Communiqués de l'APEC",
+      "publisher": "APEC",
+      "url": "https://www.apec.org/press/news-releases",
+      "domains": [
+        "geo",
+        "supply"
+      ],
+      "verifie": false
+    }
   ],
   "_non_retenues": {
     "Reuters, AFP, New York Times, Wall Street Journal": "Accès payant ou anti-robots et conditions d'utilisation qui interdisent la collecte automatique. Leurs dépêches arrivent via les reprises (Malay Mail pour l'AFP, Dawn, CBC).",
