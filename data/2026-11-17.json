@@ -19,7 +19,7 @@
    "id": "geo",
    "name": "Géopolitique",
    "level": 3,
-   "note": "Attaques record de pétroliers à Ormuz ; l'Iran dit « à double usage » les infrastructures proches des bases [62][63]."
+   "note": "Pont de Kertch touché (17/11) ; sommet Trump–Xi–Poutine à Shenzhen (18–19/11) ; Ormuz toujours fermé [65][69][62]."
   },
   {
    "id": "energie",
@@ -66,27 +66,40 @@
  ],
  "top_changes": [
   {
-   "title": "Diesel : le prix se détend, pas les stocks",
+   "title": "Le pont de Kertch coupé par une frappe ukrainienne",
    "strength": "fort",
-   "domain": "Énergie",
-   "fact": "Diesel au détail aux É.-U. à 5,9989 $ US/gal le 16/11 (AAA), contre plus de 6,50 $ fin septembre [61]. Les paris spéculatifs à la hausse sur le diesel tombent au plus bas depuis janvier [64].",
-   "mechanism": "La pression sur les prix se relâche avec le brut. Mais le risque de pénurie dépend des quantités : les stocks n'ont pas encore remonté (prochaine mise à jour de l'EIA mercredi).",
-   "effect": "Scénario diesel : 30 j de 6 à 5 % ; étape C0 de la cascade mise à jour ; indicateurs de stock inchangés.",
+   "domain": "Géopolitique",
+   "fact": "Le 17/11, un tronçon du pont reliant la Russie à la Crimée s'effondre après une frappe revendiquée par l'Ukraine ; Moscou suspend le trafic routier et ferroviaire [65][66].",
+   "mechanism": "Le pont est la principale voie d'approvisionnement russe vers la Crimée et le front sud (carburant, munitions). Moscou doit passer par le corridor terrestre, plus exposé ; une riposte est probable.",
+   "effect": "Théâtre Russie–Ukraine maintenu en N3 ; pas d'effet direct sur les scénarios canadiens.",
    "sources": [
-    61,
-    64
+    65,
+    66
    ]
   },
   {
-   "title": "Iran : infrastructures civiles du Golfe désignées « à double usage »",
-   "strength": "faible",
+   "title": "Trump, Xi et Poutine réunis à Shenzhen",
+   "strength": "fort",
    "domain": "Géopolitique",
-   "fact": "L'Iran qualifie de « double usage » les barrages, ports et centrales proches des bases américaines, ce qui les présente comme des cibles possibles (source secondaire unique) [63]. Les attaques de pétroliers atteignent un niveau record à Ormuz [62].",
-   "mechanism": "Viser l'eau et l'électricité des États du Golfe élargirait la crise au-delà du pétrole ; c'est à ce stade une menace verbale.",
-   "effect": "Aucun changement de probabilité ; à surveiller avec l'hypothèse sur les frappes dans le Golfe (échéance 18/11).",
+   "fact": "Pékin et le Kremlin confirment une première rencontre à trois en marge de l'APEC (18–19/11). Au menu selon Trump : nucléaire, Iran, Ukraine, commerce ; Washington dit n'attendre aucun accord [69][70].",
+   "mechanism": "La Chine, premier acheteur de pétrole iranien, est un levier sur Ormuz ; un signal commun sur l'Iran ou l'Ukraine pèserait sur le pétrole. Sans accord, c'est surtout un gain d'image pour Pékin.",
+   "effect": "Nouvelle hypothèse sur l'issue du sommet ; aucune probabilité modifiée avant le résultat.",
    "sources": [
-    62,
-    63
+    69,
+    70
+   ]
+  },
+  {
+   "title": "Diesel : le prix se détend, pas les stocks ; le raffinage russe recule",
+   "strength": "fort",
+   "domain": "Énergie",
+   "fact": "Diesel au détail aux É.-U. sous 6 $ US/gal le 16/11 (AAA) [61] ; spéculation à la hausse au plus bas depuis janvier [64]. En Russie, 20 à 35 % du raffinage est hors service à cause des frappes ukrainiennes [67].",
+   "mechanism": "Les prix suivent le brut, mais le risque de pénurie dépend des quantités : stocks bas et moins de diesel russe sur le marché mondial.",
+   "effect": "Scénario diesel : 30 j de 6 à 5 % ; nouvel indicateur STK-08 (raffinage russe) dans le focus.",
+   "sources": [
+    61,
+    64,
+    67
    ]
   }
  ],
@@ -456,6 +469,12 @@
    "verdict": "indetermine",
    "comment": "Trump : « pas besoin d'un accord » (12/11) ; démenti iranien du 11/11.",
    "eval_date": "2026-11-30"
+  },
+  {
+   "text": "Le sommet de Shenzhen ne débouche sur aucun accord écrit sur l'Iran ou l'Ukraine",
+   "verdict": "nouveau",
+   "comment": "",
+   "eval_date": "2026-11-20"
   }
  ],
  "sources": [
@@ -906,9 +925,58 @@
    "publisher": "Bloomberg (payant : titre et résumé seulement)",
    "date": "2026-11-16",
    "url": "https://bloomberg.com/news/articles/2026-11-16/hedge-funds-slash-bullish-bets-on-us-diesel-to-january-low"
+  },
+  {
+   "n": 65,
+   "title": "Ukraine strike collapses section of bridge to occupied Crimea in blow to Putin",
+   "publisher": "CNN",
+   "date": "2026-11-17",
+   "url": "https://www.cnn.com/2026/11/17/europe/ukraine-russia-kerch-bridge-intl-hnk"
+  },
+  {
+   "n": 66,
+   "title": "Entire section of Crimean Bridge collapses after 'seven-phase operation,' Zelensky reveals",
+   "publisher": "The Kyiv Independent",
+   "date": "2026-11-17",
+   "url": "https://kyivindependent.com/ukrainian-forces-reportedly-strike-crimean-bridge-after-russian-missiles-hit-kyiv-bridges/"
+  },
+  {
+   "n": 67,
+   "title": "Recent Ukrainian attacks have reduced Russia's oil processing capacity by 30%",
+   "publisher": "Hydrocarbon Processing (Reuters)",
+   "date": "2026-11",
+   "url": "https://hydrocarbonprocessing.com/news/2026/11/recent-ukrainian-attacks-have-reduced-russias-oil-processing-capacity-by-30/"
+  },
+  {
+   "n": 68,
+   "title": "A restless and difficult night in the Baltics as NATO fighter jets fail to shoot down drone",
+   "publisher": "Euronews",
+   "date": "2026-11-11",
+   "url": "https://www.euronews.com/2026/11/11/a-restless-and-difficult-night-in-the-baltics-as-nato-fighter-jets-fail-to-shoot-down-dron"
+  },
+  {
+   "n": 69,
+   "title": "China confirms Xi-Trump-Putin meeting in first three-way summit",
+   "publisher": "CNBC",
+   "date": "2026-11-16",
+   "url": "https://www.cnbc.com/2026/11/16/trump-xi-putin-ukraine-nuclear-tariffs-russia-iran-.html"
+  },
+  {
+   "n": 70,
+   "title": "Trump, Putin and Xi Jinping expected to meet in first-ever trilateral of its kind",
+   "publisher": "CBS News",
+   "date": "2026-11",
+   "url": "https://www.cbsnews.com/news/trump-putin-xi-jinping-meeting-china-us-russia-talks/"
+  },
+  {
+   "n": 71,
+   "title": "Chinese military activity around Taiwan (49 aircraft, 6 warships in 24 hours)",
+   "publisher": "Taipei Times",
+   "date": "2026-11-04",
+   "url": "https://www.taipeitimes.com/News/taiwan/archives/2026/11/04/2003867122"
   }
  ],
- "caveat": "La détente du diesel porte sur les prix, pas encore sur les stocks : à confirmer avec les chiffres de l'EIA mercredi. La menace iranienne sur les infrastructures civiles repose sur une source secondaire unique.",
+ "caveat": "Les rapports précédents sous-couvraient la géopolitique hors Moyen-Orient (biais de recherche centré sur l'énergie) : corrigé par le tour des théâtres. Les chiffres sur le raffinage russe sont des estimations de sources ukrainiennes et de presse ; la détente du diesel porte sur les prix, pas encore sur les stocks.",
  "focus": {
   "title": "Diesel",
   "why": "L'essence touche le budget ; le diesel fait rouler les camions d'épicerie et de pharmacie, les ambulances, les génératrices de secours et le chauffage au mazout. La question n'est pas le prix, mais combien de jours on tient.",
@@ -954,6 +1022,12 @@
     "value": "≈ 2,39 $/L",
     "context": "moyenne provinciale, sem. du 2/11 [55]",
     "status": "ok"
+   },
+   {
+    "name": "Raffinage russe hors service",
+    "value": "~20–35 %",
+    "context": "frappes ukrainiennes depuis fin octobre : moins de diesel russe sur le marché mondial [67]",
+    "status": "surveille"
    }
   ],
   "cascade": [
@@ -1001,5 +1075,37 @@
    }
   ],
   "note": "Les délais viennent d'un précédent (Royaume-Uni, septembre 2000) et d'un raisonnement : ce sont des ordres de grandeur, pas des prévisions."
- }
+ },
+ "theaters": [
+  {
+   "id": "mo",
+   "name": "Moyen-Orient",
+   "level": 3,
+   "note": "Ormuz fermé de fait, attaques de pétroliers à un niveau record ; l'Iran qualifie de « double usage » barrages, ports et centrales proches des bases américaines ; aucun accord [62][63][44]."
+  },
+  {
+   "id": "ru",
+   "name": "Russie – Ukraine",
+   "level": 3,
+   "note": "Un tronçon du pont de Kertch s'effondre après une frappe ukrainienne (17/11), trafic vers la Crimée suspendu [65][66]. Les frappes sur les raffineries russes mettent 20 à 35 % des capacités hors service ; pénuries dans plusieurs régions [67]."
+  },
+  {
+   "id": "ap",
+   "name": "Asie – Pacifique",
+   "level": 2,
+   "note": "Première rencontre à trois Trump–Xi–Poutine à l'APEC de Shenzhen (18–19/11) ; aucun accord attendu côté américain [69][70]. Pression militaire chinoise autour de Taïwan (49 avions en 24 h début novembre) [71]."
+  },
+  {
+   "id": "eu",
+   "name": "Europe – OTAN",
+   "level": 2,
+   "note": "Drones égarés au-dessus des pays baltes et de la Finlande, alertes et chasseurs de l'OTAN (11/11) ; Moscou accuse Kyiv d'utiliser l'espace aérien de l'OTAN [68]."
+  },
+  {
+   "id": "am",
+   "name": "Amériques",
+   "level": 1,
+   "note": "Congrès à majorité démocrate à partir de janvier [28] ; Donald Trump en tournée en Asie (ASEAN, APEC) [69]."
+  }
+ ]
 }
