@@ -583,6 +583,39 @@
           "type": "string"
         }
       }
+    },
+    "theaters": {
+      "type": "array",
+      "maxItems": 6,
+      "description": "Tour des théâtres géopolitiques, couverts à chaque rapport.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "level",
+          "note"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z]{2,4}$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 260
+          }
+        }
+      }
     }
   }
 }
