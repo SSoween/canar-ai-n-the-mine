@@ -152,6 +152,7 @@ function render() {
   $('#dateLbl').textContent = fmtDate(cur.date);
   $('#posLbl').textContent = `${idx + 1}/${reports.length}` + (prev ? ` · vs ${fmtDate(prev.date)}` : ' · référence');
   app.append(hud(cur, prev));
+  const the = theatersSec(cur, prev); if (the) app.append(the);
   const foc = focusSec(cur, prev); if (foc) app.append(foc);
   app.append(changesSec(cur, prev));
   app.append(starMapSec(cur, prev));
@@ -220,6 +221,31 @@ function hud(cur, prev) {
   if (cur.alert.summary) wrap.append(h('p', 'lede', cur.alert.summary));
   if (prev && lv !== prev.alert.level && cur.alert.change_reason) wrap.append(h('p', 'lede', 'Pourquoi : ' + cur.alert.change_reason));
   return wrap;
+}
+
+/* --- THÉÂTRES GÉOPOLITIQUES : tour du monde en 5 régions, à chaque rapport --- */
+function theatersSec(cur, prev) {
+  const T = cur.theaters; if (!Array.isArray(T) || !T.length) return null;
+  const pm = new Map(((prev && prev.theaters) || []).map(t => [t.id, t]));
+  let n = 0;
+  const rows = h('div', 'rows');
+  T.forEach(t => {
+    const p = pm.get(t.id), lvl = Math.max(0, Math.min(3, t.level | 0));
+    const changed = !!prev && (!p || p.level !== t.level || p.note !== t.note);
+    if (changed) n++;
+    const d = !prev || !p ? '' : lvl > (p.level | 0) ? ' ▲' : lvl < (p.level | 0) ? ' ▼' : '';
+    const r = h('div', 'row trow' + (changed ? ' chg' : prev ? ' idem' : ''));
+    const cd = h('span', 'code', String(t.id).toUpperCase()); cd.style.color = lc(lvl);
+    const head = h('div', 'hl');
+    add(head, changed ? chgTag(!p) : null, document.createTextNode((t.name || t.id) + ' '), mono(`N${lvl}${d}`, d.includes('▲') ? 'up' : d.includes('▼') ? 'dn' : ''));
+    const show = !prev || changed;
+    const note = h('div', 'ctx', show ? t.note : '= IDEM');
+    if (!show) r.onclick = () => { note.textContent = note.textContent === '= IDEM' ? '= IDEM · ' + t.note : '= IDEM'; };
+    add(r, cd, add(h('div'), head, note));
+    rows.append(r);
+  });
+  const refs = srcRefs(cur, T.map(t => t.note), [], 'Sources');
+  return section('THE', 'Théâtres', prev ? n : null, T.length, [rows, refs].filter(Boolean), true);
 }
 
 /* --- FOCUS : sujet suivi en profondeur (ex. diesel) — quantités disponibles + cascade d'effets par étapes --- */

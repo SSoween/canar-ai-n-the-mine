@@ -214,3 +214,7 @@ textarea:focus{border-color:var(--ink);outline:none}
 .stage.chg::before{left:-11px}
 .shead{display:flex;align-items:baseline;gap:10px}
 .shead .tag{margin:0}
+
+/* THÉÂTRES */
+.row.trow{grid-template-columns:40px 1fr}
+.row.trow.idem{cursor:pointer}
