@@ -218,3 +218,90 @@ textarea:focus{border-color:var(--ink);outline:none}
 /* THÉÂTRES */
 .row.trow{grid-template-columns:40px 1fr}
 .row.trow.idem{cursor:pointer}
+
+/* v15 : tests et exercices, veille élargie, radar, échéances, contre-lecture */
+.row.xrow{grid-template-columns:76px 1fr}
+.dcol{display:flex;flex-direction:column;gap:2px}
+.ctx.rumor{color:var(--ink-3)}
+.ctx.local{color:var(--ink);margin-top:6px}
+.recul>div{display:flex;gap:8px;align-items:center}
+.recul p+.mono{display:block;margin-top:12px}
+
+/* ---------- v16 : quatre parties + cartes biseautées (langage visuel d'AI Multiverse) ----------
+   Coins haut-gauche et bas-droit coupés (clip-path : fonctionne sur tous les téléphones), crochets sur les
+   deux coins droits, grille technique discrète, bord gauche à la couleur du niveau.
+   Une carte modifiée depuis la veille allume ses crochets en orange. */
+:root{--hull:#0F1630;--hull-2:#162042;--edge:rgba(150,170,230,.34);--grid:rgba(231,234,246,.035);--hh:52px}
+.card,details.sec{--cut:14px;--lv:var(--edge);--bk:rgba(231,234,246,.40);position:relative;margin-top:10px;padding:0 14px 0 16px;border-top:0;
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));
+  background:
+    linear-gradient(135deg,transparent calc(50% - .7px),var(--edge) calc(50% - .7px) calc(50% + .7px),transparent calc(50% + .7px)) left top/var(--cut) var(--cut) no-repeat,
+    linear-gradient(135deg,transparent calc(50% - .7px),var(--edge) calc(50% - .7px) calc(50% + .7px),transparent calc(50% + .7px)) right bottom/var(--cut) var(--cut) no-repeat,
+    linear-gradient(var(--bk),var(--bk)) right top/16px 1.5px no-repeat,linear-gradient(var(--bk),var(--bk)) right top/1.5px 16px no-repeat,
+    linear-gradient(var(--bk),var(--bk)) left bottom/16px 1.5px no-repeat,linear-gradient(var(--bk),var(--bk)) left bottom/1.5px 16px no-repeat,
+    linear-gradient(var(--grid) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/24px 24px,
+    rgba(15,22,48,.88);
+  box-shadow:inset 0 0 0 1px var(--rule-2),inset 3px 0 0 var(--lv)}
+.card.chg,details.sec[data-n]:not([data-n="0"]){--bk:var(--accent)}
+.card.calm{--lv:var(--l0)} .card.flat{--lv:var(--rule-2)} .card.ctr{--lv:var(--accent)}
+/* en-têtes de carte (les sections existantes gardent leur structure) */
+.card>.ch,.card>summary.ch,details.sec>summary.sh{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:8px;padding:12px 0 10px}
+.card>summary::-webkit-details-marker{display:none}
+.card>div.ch{cursor:default}
+.ctitle{flex:1;min-width:0;font:700 16px/20px var(--f-d);font-stretch:108%}
+.stitle{font-size:16px;line-height:20px}
+details.card[open]>summary .stog::before,details.nest[open]>summary .stog::before{content:"−"}
+.cbody,.sbody{padding:0 0 12px}
+@media(min-width:960px){.sbody{padding-left:0}.stitle{font-size:18px;line-height:22px}}
+.txt{font-size:14px;line-height:20px;color:var(--ink-2);margin:0 0 6px}
+.loc{font-size:13px;line-height:18px;color:var(--ink);margin:4px 0 0}
+.act.lnk{background:none;border:0;padding:6px 0 0;color:var(--ink-3);cursor:pointer;font-size:11px}
+.act.lnk:hover{color:var(--ink)}
+/* blocs imbriqués : canal, dossier, tests */
+.nest{--cut:9px;--lv:var(--edge);margin:10px 0 0;padding:8px 12px 10px 14px;
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));
+  background:
+    linear-gradient(135deg,transparent calc(50% - .7px),var(--edge) calc(50% - .7px) calc(50% + .7px),transparent calc(50% + .7px)) left top/var(--cut) var(--cut) no-repeat,
+    linear-gradient(135deg,transparent calc(50% - .7px),var(--edge) calc(50% - .7px) calc(50% + .7px),transparent calc(50% + .7px)) right bottom/var(--cut) var(--cut) no-repeat,
+    var(--hull-2);
+  box-shadow:inset 0 0 0 1px var(--rule-2),inset 3px 0 0 var(--lv)}
+.nest.chg{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 45%,transparent),inset 3px 0 0 var(--lv)}
+.nest.calm{--lv:var(--l0)} .nest.dossier{--lv:var(--accent)}
+.nh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;list-style:none;cursor:default;padding-bottom:4px}
+summary.nh{cursor:pointer} summary.nh::-webkit-details-marker{display:none}
+.ntitle{flex:1;min-width:0;font:600 14px/19px var(--f-b)}
+.nest .tag{margin-right:0}
+/* rail de cascade du dossier */
+.rail{display:flex;gap:4px;margin:4px 0 2px;flex-wrap:wrap}
+.rail .st{--cut:5px;font:600 10px/14px var(--f-m);letter-spacing:.06em;padding:3px 8px;color:var(--ink-3);
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));box-shadow:inset 0 0 0 1px var(--rule-2)}
+.rail .st.en{color:var(--paper);background:var(--accent);box-shadow:none}
+.rail .st.su{color:var(--l1);box-shadow:inset 0 0 0 1px var(--l1)}
+/* étiquettes biseautées */
+.tag{--cut:4px;padding:1px 6px;clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));
+  background:color-mix(in srgb,currentColor 14%,transparent)}
+/* titres de parties : filet estompé + losange (style catalogue) */
+.pt{scroll-margin-top:calc(var(--hh) + 48px)}
+.part{position:relative;margin:34px 0 4px;padding-bottom:10px;display:flex;align-items:baseline;gap:10px;scroll-margin-top:calc(var(--hh) + 48px);
+  border-bottom:1px solid;border-image:linear-gradient(90deg,transparent,var(--edge) 10%,var(--edge) 90%,transparent) 1}
+.part::after{content:"";position:absolute;left:50%;bottom:-4px;width:7px;height:7px;transform:translateX(-50%) rotate(45deg);border:1px solid var(--edge);background:var(--paper)}
+.ph{font:600 11px var(--f-m);letter-spacing:.08em;color:var(--ink-3)}
+.part h2{margin:0;font:800 22px/26px var(--f-d);font-stretch:112%;letter-spacing:.02em;text-transform:uppercase}
+.part p{margin:0 0 0 auto;font:500 10px/14px var(--f-m);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.subh{font:500 11px/16px var(--f-m);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:20px 0 0}
+.subh::before{content:"// "}
+#part-brief{margin-top:10px}
+/* barre des parties, collée sous l'en-tête */
+.pnav{position:sticky;top:var(--hh);z-index:4;display:flex;gap:4px;padding:8px 0;margin:0 -2px;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.pchip{--cut:6px;flex:1;border:0;cursor:pointer;font:600 11px/14px var(--f-m);letter-spacing:.08em;text-transform:uppercase;padding:8px 4px;color:var(--ink-2);
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));
+  background:
+    linear-gradient(135deg,transparent calc(50% - .7px),var(--edge) calc(50% - .7px) calc(50% + .7px),transparent calc(50% + .7px)) left top/var(--cut) var(--cut) no-repeat,
+    linear-gradient(135deg,transparent calc(50% - .7px),var(--edge) calc(50% - .7px) calc(50% + .7px),transparent calc(50% + .7px)) right bottom/var(--cut) var(--cut) no-repeat,var(--hull);
+  box-shadow:inset 0 0 0 1px var(--edge)}
+.pchip.on{background:var(--ink);color:var(--paper)}
+.pchip i{font-style:normal;color:var(--accent);margin-left:5px}
+.orbitbox{margin-top:6px}
+/* le résumé (HUD) garde ses repères d'angle ; on retire le filet du méta */
+.brief{padding-top:0}
+.recul{margin-top:14px}

@@ -1066,9 +1066,100 @@
    "publisher": "The Irish Times",
    "date": "2026-11-18",
    "url": "https://www.irishtimes.com/business/2026/11/18/euro-area-inflation-hits-4-paving-way-for-more-ecb-rate-hikes/"
+  },
+  {
+   "n": 84,
+   "title": "Colorado residents get FEMA test alert as blackout rumors spread",
+   "publisher": "Denver Gazette (AP, Washington Examiner)",
+   "date": "2026-11-17",
+   "url": "https://www.denvergazette.com/2026/11/17/colorado-residents-get-fema-test-alert-as-blackout-rumors-spread/"
+  },
+  {
+   "n": 85,
+   "title": "Test du système Québec En Alerte",
+   "publisher": "Gouvernement du Québec (Sécurité intérieure)",
+   "date": "2026-11-13",
+   "url": "https://www.quebec.ca/nouvelles/actualites/details/test-du-systeme-quebec-en-alerte-73027"
+  },
+  {
+   "n": 86,
+   "title": "France announces a tabletop blackout exercise, but the date is unconfirmed",
+   "publisher": "Pasquale Pillitteri (vérification)",
+   "date": "2026",
+   "url": "https://pasqualepillitteri.it/en/news/34141/france-announces-a-tabletop-blackout-exercise-but-the-date"
+  },
+  {
+   "n": 87,
+   "title": "Could everything be broken? Grounded jets, Microsoft outage, AI chaos make some wonder",
+   "publisher": "AP (via WCAX)",
+   "date": "2026-11-15",
+   "url": "https://www.wcax.com/2026/11/15/could-everything-be-broken-grounded-jets-microsoft-outage-ai-chaos-make-some-wonder/"
+  },
+  {
+   "n": 88,
+   "title": "Is Europe's gas storage really 75% full? It is lower, and a record low for the date (GIE AGSI+)",
+   "publisher": "OilPriceAPI",
+   "date": "2026-11-13",
+   "url": "https://www.oilpriceapi.com/blog/europe-gas-storage-record-low-fact-check-november-2026"
+  },
+  {
+   "n": 89,
+   "title": "Retail fertilizer prices mixed first week of November",
+   "publisher": "DTN",
+   "date": "2026-11-11",
+   "url": "https://www.dtnpf.com/agriculture/web/ag/crops/article/2026/11/11/retail-fertilizer-prices-mixed-first"
+  },
+  {
+   "n": 90,
+   "title": "Analysts warn farmers to prepare for high fertilizer prices through spring 2027",
+   "publisher": "Fertilizer Daily",
+   "date": "2026-05-28",
+   "url": "https://www.fertilizerdaily.com/20260528-analysts-warn-farmers-to-mentally-prepare-for-high-prices-through-spring-2027/"
+  },
+  {
+   "n": 91,
+   "title": "Bomb found near ethanol plant in central Illinois forces evacuations",
+   "publisher": "NPR Illinois",
+   "date": "2026-11-14",
+   "url": "https://www.nprillinois.org/2026-11-14/bomb-found-near-ethanol-plant-in-central-illinois-forces-evacuations"
+  },
+  {
+   "n": 92,
+   "title": "Avian influenza A(H5N1) human cases – United States – update",
+   "publisher": "ECDC",
+   "date": "2026-11-09",
+   "url": "https://www.ecdc.europa.eu/en/public-health-events/2024-irv-00003/2026-11-09"
+  },
+  {
+   "n": 93,
+   "title": "Électricité : le réseau québécois vulnérable au froid extrême, selon une étude",
+   "publisher": "Noovo Info",
+   "date": "date non vérifiée",
+   "url": "https://www.noovo.info/nouvelle/electricite-le-reseau-quebecois-vulnerable-au-froid-extreme-selon-une-etude.html"
+  },
+  {
+   "n": 94,
+   "title": "Around 10% of Toronto mortgage holders could have trouble refinancing in 2027: BoC",
+   "publisher": "BNN Bloomberg",
+   "date": "2026-06-09",
+   "url": "https://www.bnnbloomberg.ca/business/real-estate/2026/06/09/around-10-per-cent-of-toronto-mortgage-holders-could-have-trouble-refinancing-in-2027-boc/"
+  },
+  {
+   "n": 95,
+   "title": "EU enters winter with lowest gas reserves in more than a decade, IEA warns",
+   "publisher": "Carbon Pulse",
+   "date": "2026-11",
+   "url": "https://carbon-pulse.com/?p=566835"
+  },
+  {
+   "n": 96,
+   "title": "Canadian trucking's 2027 port and rail labour calendar",
+   "publisher": "Rose Rocket (blogue)",
+   "date": "2026",
+   "url": "https://www.roserocket.com/blog/strike-season-starts-on-your-load-board-canadian-trucking-s-2027-port-and-rail-labour-calendar"
   }
  ],
- "caveat": "Correction : l'hypothèse sur les frappes américaines, notée « juste » le 17/11, est fausse (frappe sur Qeshm le 17/11) ; l'indicateur d'Ormuz « quasi nul » était dépassé, les flux remontent par navettes. Bilan de Shenzhen inconnu à l'heure du rapport.",
+ "caveat": "Correction : l'hypothèse sur les frappes américaines, notée « juste » le 17/11, est fausse (frappe sur Qeshm le 17/11) ; l'indicateur d'Ormuz « quasi nul » était dépassé. Veille élargie : premiers relevés, niveaux à calibrer sur quelques jours ; l'évaluation hivernale du réseau n'est pas encore trouvée.",
  "focus": {
   "title": "Diesel",
   "why": "L'essence touche le budget ; le diesel fait rouler les camions d'épicerie et de pharmacie, les ambulances, les génératrices de secours et le chauffage au mazout. La question n'est pas le prix, mais combien de jours on tient.",
@@ -1199,5 +1290,156 @@
    "level": 1,
    "note": "Carney à l'APEC de Shenzhen, rencontre prévue avec Xi [81]. Aux É.-U., pannes en série (Microsoft, contrôle aérien, Chase) sans lien cyber établi [82]. Congrès à majorité démocrate en janvier [28]."
   }
- ]
+ ],
+ "watch": [
+  {
+   "id": "pan",
+   "name": "Pannes techniques et cyber",
+   "level": 2,
+   "note": "Six jours de pannes aux É.-U. : Microsoft (12/11, bogue dormant depuis juillet), arrêt de tous les vols (13/11, plus de 10 000 vols), Chase et United (16/11), Apple (17/11). Aucune n'est malveillante selon les autorités [84][87][82].",
+   "local": "Mêmes fournisseurs au Canada : garder un peu d'argent comptant et les numéros importants sur papier."
+  },
+  {
+   "id": "gaz",
+   "name": "Gaz en Europe",
+   "level": 2,
+   "note": "Stocks de l'UE à 71 % le 11/11, plus bas jamais mesuré à cette date (Allemagne 58 %) ; l'AIE évoque moins de 10 % fin mars si l'hiver est froid ; gaz européen ≈ 89 €/MWh [88][95].",
+   "local": "Indirect : l'Europe achète plus de GNL et de diesel américains, ce qui tend les prix du chauffage et du diesel dans le nord-est."
+  },
+  {
+   "id": "eng",
+   "name": "Engrais et prix alimentaires",
+   "level": 1,
+   "note": "Urée à 662 $ US/t au détail début novembre, au-dessus d'il y a un an ; les analystes prévoient des prix élevés jusqu'au printemps 2027 [89][90].",
+   "local": "Effet décalé de 6 à 12 mois sur l'épicerie (céréales, viande, produits laitiers) : à prévoir dans le budget 2027."
+  },
+  {
+   "id": "sab",
+   "name": "Sabotage d'infrastructures",
+   "level": 1,
+   "note": "Engin explosif trouvé dans une usine d'éthanol de Peoria (Illinois) le 13/11 : évacuation dans un rayon d'1 mile, enquête du FBI [91]. Aucun incident connu au Canada.",
+   "local": "Le Québec dépend d'une raffinerie (Lévis, ~70 % des carburants) : un acte isolé y aurait un effet direct [56]."
+  },
+  {
+   "id": "h5n",
+   "name": "Grippe aviaire H5N1",
+   "level": 1,
+   "note": "Trois cas humains dans le comté de Yakima (Washington) depuis le 15/10, dont un décès ; tous travaillent dans des fermes laitières. Aucune transmission interhumaine ; risque faible pour le public [92].",
+   "local": "Aucun effet direct. Seuil d'alerte : une transmission entre humains."
+  },
+  {
+   "id": "res",
+   "name": "Réseau électrique du Québec",
+   "level": 1,
+   "note": "Une étude évoque un manque possible jusqu'à 10 GW en froid extrême (date non vérifiée) ; l'évaluation hivernale 2026-2027 du NERC n'est pas encore trouvée [93].",
+   "local": "Un appel d'Hydro-Québec à réduire la consommation par grand froid est un signal à suivre, pas une panne."
+  },
+  {
+   "id": "tau",
+   "name": "Taux et crédit des ménages",
+   "level": 1,
+   "note": "Inflation de la zone euro à 4 %, la BCE vers de nouvelles hausses [83] ; taux directeur canadien à 2,5 % [6] ; ~10 % des emprunteurs de Toronto pourraient peiner à refinancer en 2027 selon la Banque du Canada [94].",
+   "local": "Hypothèque : vérifier la date de renouvellement et simuler le paiement au taux actuel."
+  }
+ ],
+ "drills": [
+  {
+   "date": "2026-11-18",
+   "zone": "Québec",
+   "title": "Test Québec En Alerte (cellulaires, radio, télé)",
+   "verdict": "test_officiel",
+   "what": "Test annuel du ministère de la Sécurité intérieure à 13 h 55 : message en français et en anglais, aucun danger, aucune action requise [85].",
+   "sources": [
+    85
+   ]
+  },
+  {
+   "date": "2026-11-17",
+   "zone": "États-Unis",
+   "title": "Test du système d'alerte de la FEMA",
+   "verdict": "test_officiel",
+   "what": "Interruption brève de la radio et de la télé dans six États, dont le Colorado. La loi impose un test au moins tous les 3 ans [84].",
+   "sources": [
+    84
+   ]
+  },
+  {
+   "date": "2026-11-14",
+   "zone": "États-Unis",
+   "title": "Rumeur d'une panne de courant de 90 jours",
+   "verdict": "rumeur_infondee",
+   "what": "La FEMA dément : « aucune urgence secrète ». Le vice-président : « nous ne voyons pas de crise venir » [84].",
+   "rumor": "Relancée par les pannes en série et par une fausse vidéo (hypertrucage) de Trump annonçant une coupure de 90 jours [84].",
+   "sources": [
+    84
+   ]
+  },
+  {
+   "date": "non fixée",
+   "zone": "France",
+   "title": "Exercice national de black-out",
+   "verdict": "exercice_sur_table",
+   "what": "Exercice sur table : décisions simulées à huis clos, sans aucune coupure de courant réelle [86].",
+   "rumor": "Des articles parlent d'une « coupure sur tout le territoire » ; la date (novembre 2026 ou 2027) n'est pas confirmée [86].",
+   "sources": [
+    86
+   ]
+  }
+ ],
+ "radar": [
+  {
+   "title": "Oléoduc Enbridge du Dakota du Nord arrêté depuis le 14/11",
+   "decision": "verifier",
+   "why": "475 000 barils/jour détournés vers le golfe du Mexique pour contamination (source unique) [62]. Effet sur Lévis probablement faible : la raffinerie est alimentée par la ligne 9 et par bateau.",
+   "sources": [
+    62
+   ]
+  },
+  {
+   "title": "Iran : réserves de pétrole à sec sous le blocus naval ?",
+   "decision": "verifier",
+   "why": "Vu seulement en titre. Si c'est confirmé, un régime acculé capitule ou escalade : effet direct sur Ormuz et sur le scénario Brent."
+  },
+  {
+   "title": "Fin de convention collective d'un grand chemin de fer canadien (31/12)",
+   "decision": "suivre",
+   "why": "Une grève ferroviaire en janvier bloquerait carburants, grains et marchandises vers le Québec en plein hiver. Non confirmé par une source primaire [96].",
+   "sources": [
+    96
+   ]
+  }
+ ],
+ "calendar": [
+  {
+   "date": "2026-11-19",
+   "label": "Rencontre Trump–Xi à Shenzhen, puis avec Poutine",
+   "why": "Seul événement proche capable de faire bouger Ormuz rapidement (Iran, trêve commerciale)."
+  },
+  {
+   "date": "2026-11-25",
+   "label": "Stocks hebdomadaires de l'EIA (distillats)",
+   "why": "Sous 95 millions de barils : seuil d'alerte du focus diesel."
+  },
+  {
+   "date": "2026-11-30",
+   "label": "Échéance de 5 hypothèses (Ormuz, Brent, diesel, essence, frappes)",
+   "why": "Bilan de fiabilité de la veille sur novembre."
+  },
+  {
+   "date": "2026-12-01",
+   "label": "Début de la période de pointe d'Hydro-Québec (jusqu'au 31/03)",
+   "why": "Les appels à réduire la consommation par grand froid deviennent possibles."
+  },
+  {
+   "date": "2026-12-09",
+   "label": "Décision de taux de la Banque du Canada",
+   "why": "Une nouvelle hausse renchérit les renouvellements hypothécaires."
+  },
+  {
+   "date": "2026-12-31",
+   "label": "Fin de convention collective d'un grand chemin de fer canadien (à confirmer)",
+   "why": "Risque de grève ou de lock-out en janvier."
+  }
+ ],
+ "contradiction": "Le scénario principal suppose qu'Ormuz fermé garde le pétrole cher. Or le Brent recule malgré l'escalade, les flux d'Ormuz remontent et le marché craint un surplus [74][75]. Conclusion : le risque passe du prix du baril aux quantités locales (diesel, gaz en Europe)."
 }

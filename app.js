@@ -87,7 +87,7 @@ function addReport(r, silent) {
 /* ---------- rendu v10 : « exec brief, engine-spec » en ambiance spatiale ----------
    Résumé = télémétrie · Changements = fiche technique (mode Journal au choix) · Domaines = carte stellaire.
    Pas de cartes ni de bulles : filets de 1 px, codes en Plex Mono, couleur réservée au sens. */
-const DCODE = { geo: 'GEO', energie: 'ENE', supply: 'APP', cyber: 'CYB', climat: 'CLI', sante: 'SAN', social: 'SOC', prep: 'PRE' };
+const DCODE = { geo: 'GEO', energie: 'ENE', supply: 'APP', cyber: 'CYB', climat: 'CLI', sante: 'SAN', social: 'MEN', prep: 'PRE' };
 const DORDER = ['geo', 'energie', 'supply', 'cyber', 'climat', 'sante', 'social', 'prep'];
 const MODE_KEY = 'riskwatch.mode.v1';
 let MODE = 'compact';
@@ -107,6 +107,7 @@ function section(code, title, status, count, bodyEls, open = false) {
     h('span', 'stog'));
   d.append(s, add(h('div', 'sbody'), bodyEls));
   d.open = open;
+  d.dataset.n = status > 0 ? status : 0;
   return d;
 }
 
@@ -132,7 +133,46 @@ function srcRefs(cur, texts, extra, label = 'Preuve') {
   return p;
 }
 
-/* ---------- rendu ---------- */
+/* ---------- rendu v16 : quatre parties (Brief · Faits · Analyse · Agir) + annexes ----------
+   Faits = ce qui s'est passé (sources, aucune probabilité) ; Analyse = ce qu'on en pense.
+   Une seule façon de classer les faits : 5 théâtres + 8 domaines. Les canaux de veille, le dossier (focus)
+   et les tests sont rangés dans leur domaine. */
+const WMAP = { pan: 'cyber', gaz: 'energie', res: 'energie', eng: 'supply', sab: 'supply', h5n: 'sante', tau: 'social' };
+const DNAME = { cyber: 'Cyber et pannes', social: 'Économie des ménages' };
+const PARTS = [['brief', 'Brief'], ['faits', 'Faits'], ['analyse', 'Analyse'], ['agir', 'Agir']];
+const nOf = el => [...el.querySelectorAll('[data-n]')].reduce((s, e) => s + (Number(e.dataset.n) || 0), 0);
+const ddmm = d => (/^\d{4}-\d{2}-\d{2}$/.test(d || '') ? `${d.slice(8, 10)}/${d.slice(5, 7)}` : '—');
+
+function partHead(num, id, title, hint) {
+  const d = h('div', 'part'); d.id = 'part-' + id;
+  add(d, h('span', 'ph', num), h('h2', null, title), hint ? h('p', null, hint) : null);
+  return d;
+}
+/* carte biseautée repliable (même logique que section) */
+function card(code, title, lvl, n, prev, bodyEls, open, extraCls) {
+  const d = h('details', 'card' + (extraCls ? ' ' + extraCls : '') + (n > 0 ? ' chg' : ''));
+  if (lvl != null) d.style.setProperty('--lv', lc(lvl));
+  d.dataset.n = n > 0 ? n : 0;
+  const s = h('summary', 'ch');
+  const cd = h('span', 'code', code); if (lvl != null) cd.style.color = lc(lvl);
+  const st = !prev ? 'RÉF.' : n > 0 ? `${n} MODIF.` : '= IDEM';
+  add(s, cd, h('span', 'ctitle', title), lvl != null ? mono('N' + lvl) : null, h('span', 'sstat' + (n > 0 ? ' chg' : ''), st), h('span', 'stog'));
+  d.append(s, add(h('div', 'cbody'), bodyEls));
+  d.open = !!open;
+  return d;
+}
+function jump(id) { const t = document.getElementById('part-' + id); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+function navBar(counts) {
+  const n = h('nav', 'pnav');
+  PARTS.forEach(([id, l]) => {
+    const b = h('button', 'pchip', l); b.dataset.p = id;
+    if (counts[id] > 0) b.append(h('i', null, '●'));
+    b.onclick = () => jump(id);
+    n.append(b);
+  });
+  return n;
+}
+
 function render() {
   const app = $('#app');
   app.replaceChildren();
@@ -151,18 +191,309 @@ function render() {
   const cur = reports[idx], prev = idx > 0 ? reports[idx - 1] : null;
   $('#dateLbl').textContent = fmtDate(cur.date);
   $('#posLbl').textContent = `${idx + 1}/${reports.length}` + (prev ? ` · vs ${fmtDate(prev.date)}` : ' · référence');
-  app.append(hud(cur, prev));
-  const the = theatersSec(cur, prev); if (the) app.append(the);
-  const foc = focusSec(cur, prev); if (foc) app.append(foc);
-  app.append(changesSec(cur, prev));
-  app.append(starMapSec(cur, prev));
-  app.append(scenariosSec(cur, prev));
-  app.append(impactsSec(cur, prev));
-  app.append(indicatorsSec(cur, prev));
-  app.append(actionsSec(cur, prev));
-  app.append(hypSec(cur, prev));
-  app.append(sourcesSec(cur));
-  if (cur.caveat) add(app, add(h('div', 'recul'), mono('Recul'), h('p', null, String(cur.caveat))));
+
+  const parts = {
+    brief: add(h('section', 'pt'), partHead('01', 'brief', 'Brief', '30 secondes'), briefPart(cur, prev)),
+    faits: add(h('section', 'pt'), partHead('02', 'faits', 'Faits', 'ce qui s\'est passé · sans %'), factsPart(cur, prev)),
+    analyse: add(h('section', 'pt'), partHead('03', 'analyse', 'Analyse', 'ce qu\'on en pense'), analysisPart(cur, prev)),
+    agir: add(h('section', 'pt'), partHead('04', 'agir', 'Agir', 'que faire'), actionsSec(cur, prev), calendarSec(cur, prev))
+  };
+  const counts = {}; Object.keys(parts).forEach(k => { counts[k] = nOf(parts[k]); });
+  counts.brief = 0; // le Brief résume, il ne compte pas
+  app.append(navBar(counts), ...Object.values(parts));
+  const ann = add(h('section', 'pt'), partHead('—', 'annexes', 'Annexes', 'sources · recul'), sourcesSec(cur));
+  if (cur.caveat) ann.append(add(h('div', 'recul'), mono('Recul'), h('p', null, String(cur.caveat))));
+  app.append(ann);
+  setNavTop(); markNav();
+}
+
+/* ===== 01 BRIEF ===== */
+function briefPart(cur, prev) {
+  const out = [hud(cur, prev)];
+  // ce qui change aujourd'hui : titres seulement, le détail est dans Analyse
+  const ch = h('div', 'card flat');
+  add(ch, add(h('div', 'ch'), h('span', 'code', 'CHG'), h('span', 'ctitle', 'Ce qui change aujourd\'hui')));
+  const rows = h('div', 'rows');
+  cur.top_changes.slice(0, 3).forEach((c, i) => {
+    const strong = /fort/i.test(c.strength || '');
+    const r = h('div', 'row xrow');
+    add(r, mono(`CHG-${pad2(i + 1)}`), add(h('div', 'hl'), tag(strong ? 'FORT' : 'FAIBLE', strong ? 'var(--accent)' : 'var(--l1)'), document.createTextNode(c.title || '')));
+    rows.append(r);
+  });
+  if (!cur.top_changes.length) rows.append(h('p', 'note', 'Aucun changement significatif : = IDEM.'));
+  const more = h('button', 'act lnk', '› mécanisme et effet : Analyse'); more.onclick = () => jump('analyse');
+  add(ch, add(h('div', 'cbody'), rows, cur.top_changes.length ? more : null));
+  out.push(ch);
+  // pas d'inquiétude : tests et rumeurs
+  const D = Array.isArray(cur.drills) ? cur.drills : [];
+  if (D.length) {
+    const V = { test_officiel: ['TEST OFFICIEL', 'var(--l0)'], exercice_sur_table: ['SUR TABLE', 'var(--l0)'], rumeur_infondee: ['RUMEUR INFONDÉE', 'var(--l1)'], a_confirmer: ['À CONFIRMER', 'var(--ink-3)'] };
+    const c = h('div', 'card calm');
+    const rr = h('div', 'rows');
+    D.forEach(x => {
+      const [vl, vc] = V[x.verdict] || V.a_confirmer;
+      const r = h('div', 'row xrow');
+      add(r, mono(ddmm(x.date)), add(h('div'), add(h('div', 'hl'), document.createTextNode((x.title || '') + ' '), tag(vl, vc)), mono(x.zone || '')));
+      rr.append(r);
+    });
+    const more = h('button', 'act lnk', '› détail : Faits › Préparation'); more.onclick = () => { const t = document.getElementById('dom-prep'); if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } };
+    add(c, add(h('div', 'ch'), h('span', 'code', 'TST'), h('span', 'ctitle', 'Pas d\'inquiétude')),
+      add(h('div', 'cbody'), h('p', 'note', 'Tests et rumeurs : encadrés, aucune action requise.'), rr, more));
+    out.push(c);
+  }
+  // prochaines échéances
+  const C = (Array.isArray(cur.calendar) ? cur.calendar : []).filter(x => x.date >= cur.date).sort(byDate).slice(0, 3);
+  if (C.length) {
+    const c = h('div', 'card flat');
+    const rr = h('div', 'rows');
+    C.forEach(x => rr.append(add(h('div', 'row xrow'), mono(ddmm(x.date)), h('div', 'hl', x.label || ''))));
+    add(c, add(h('div', 'ch'), h('span', 'code', 'CAL'), h('span', 'ctitle', 'Prochaines échéances')), add(h('div', 'cbody'), rr));
+    out.push(c);
+  }
+  return out;
+}
+
+/* ===== 02 FAITS ===== */
+function factsPart(cur, prev) {
+  const out = [];
+  const T = Array.isArray(cur.theaters) ? cur.theaters : [];
+  if (T.length) {
+    out.push(h('div', 'subh', `Géopolitique · ${T.length} théâtres`));
+    const pm = new Map(((prev && prev.theaters) || []).map(t => [t.id, t]));
+    T.forEach(t => {
+      const p = pm.get(t.id), lvl = Math.max(0, Math.min(3, t.level | 0));
+      const changed = !!prev && (!p || p.level !== t.level || p.note !== t.note);
+      const d = !prev || !p ? '' : lvl > (p.level | 0) ? ' ▲' : lvl < (p.level | 0) ? ' ▼' : '';
+      out.push(card(String(t.id).toUpperCase(), (t.name || t.id) + d, lvl, changed ? 1 : 0, prev,
+        [h('p', 'txt', t.note || ''), srcRefs(cur, [t.note], [], 'Sources')], !prev || changed));
+    });
+  }
+  out.push(h('div', 'subh', 'Systèmes · domaines, canaux et dossiers'));
+  out.push(orbit(cur, prev, !T.length));
+  const W = Array.isArray(cur.watch) ? cur.watch : [];
+  const pw = new Map(((prev && prev.watch) || []).map(w => [w.id, w]));
+  const pd = new Map(((prev && prev.domains) || []).map(d => [d.id, d]));
+  const focusDom = cur.focus ? (cur.focus.domain || 'energie') : null;
+  const placed = new Set();
+  DORDER.forEach(id => {
+    if (id === 'geo' && T.length) return; // les théâtres tiennent lieu de domaine géopolitique
+    const d = cur.domains.find(x => x.id === id); if (!d) return;
+    const p = pd.get(id), lvl = Math.max(0, Math.min(3, d.level | 0));
+    const dChg = !!prev && (!p || p.level !== d.level || (p.note || '') !== (d.note || ''));
+    const delta = !prev || !p ? '' : lvl > (p.level | 0) ? ' ▲' : lvl < (p.level | 0) ? ' ▼' : '';
+    let n = dChg ? 1 : 0;
+    const body = [h('p', 'txt', d.note || '—'), srcRefs(cur, [d.note], [], 'Sources')];
+    if (focusDom === id) { const f = focusBlock(cur, prev); n += f.n; body.push(f.el); }
+    W.filter(w => (w.domain || WMAP[w.id]) === id).forEach(w => {
+      placed.add(w.id); const x = channelBlock(cur, w, pw.get(w.id), prev); n += x.n; body.push(x.el);
+    });
+    if (id === 'prep') { const x = drillsBlock(cur, prev); if (x) { n += x.n; body.push(x.el); } }
+    const c = card(DCODE[id] || id.toUpperCase(), (DNAME[id] || d.name || id) + delta, lvl, n, prev, body, !prev || n > 0);
+    c.id = 'dom-' + id;
+    out.push(c);
+  });
+  const rest = W.filter(w => !placed.has(w.id));
+  if (rest.length) {
+    let n = 0; const body = [];
+    rest.forEach(w => { const x = channelBlock(cur, w, pw.get(w.id), prev); n += x.n; body.push(x.el); });
+    out.push(card('AUT', 'Autres canaux', null, n, prev, body, n > 0));
+  }
+  const rad = radarSec(cur, prev);
+  if (rad) { rad.querySelector('.stitle').textContent = 'Hors champ · Radar'; out.push(rad); }
+  return out;
+}
+/* canal de veille, imbriqué dans son domaine */
+function channelBlock(cur, w, p, prev) {
+  const lvl = Math.max(0, Math.min(3, w.level | 0));
+  const changed = !!prev && (!p || p.level !== w.level || p.note !== w.note || (p.local || '') !== (w.local || ''));
+  const d = !prev || !p ? '' : lvl > (p.level | 0) ? ' ▲' : lvl < (p.level | 0) ? ' ▼' : '';
+  const el = h('div', 'nest' + (changed ? ' chg' : ''));
+  el.style.setProperty('--lv', lc(lvl));
+  const cd = h('span', 'code', String(w.id).toUpperCase()); cd.style.color = lc(lvl);
+  const head = add(h('div', 'nh'), cd, h('span', 'ntitle', (w.name || w.id) + d), mono('N' + lvl), changed ? chgTag(!p) : null);
+  const det = add(h('div'), h('p', 'txt', w.note || ''),
+    w.local ? add(h('p', 'loc'), mono('Chez toi · '), document.createTextNode(w.local)) : null,
+    srcRefs(cur, [w.note], [], 'Sources'));
+  if (prev && !changed) {
+    det.hidden = true;
+    const t = h('button', 'act lnk', '= IDEM · relire'); t.onclick = () => { det.hidden = !det.hidden; };
+    add(el, head, t, det);
+  } else add(el, head, det);
+  return { el, n: changed ? 1 : 0 };
+}
+/* dossier approfondi (focus), imbriqué dans son domaine */
+function focusBlock(cur, prev) {
+  const f = cur.focus;
+  const pf = prev && prev.focus && prev.focus.title === f.title ? prev.focus : null;
+  const MS = { ok: ['OK', 'var(--l0)'], surveille: ['À SURVEILLER', 'var(--l1)'], alerte: ['ALERTE', 'var(--accent)'] };
+  const CS = { en_cours: ['EN COURS', 'var(--accent)'], surveille: ['SURVEILLÉ', 'var(--l1)'], inactif: ['INACTIF', 'var(--ink-3)'] };
+  let n = 0;
+  const body = [];
+  if (f.why) body.push(h('p', 'txt', f.why));
+  body.push(h('div', 'grp', 'Quantités et stocks'));
+  const pm = new Map(((pf && pf.metrics) || []).map(m => [m.name, m]));
+  const mrows = h('div', 'rows');
+  (f.metrics || []).forEach((m, k) => {
+    const p = pm.get(m.name), changed = !!pf && (!p || p.value !== m.value || p.status !== m.status);
+    if (changed) n++;
+    const [sl, sc] = MS[m.status] || MS.surveille;
+    const r = h('div', 'row frow' + (changed ? ' chg' : ''));
+    const cd = h('span', 'code', `STK-${pad2(k + 1)}`); cd.style.color = sc;
+    add(r, cd, add(h('div'), add(h('div', 'fname'), changed ? chgTag(!p) : null, document.createTextNode(m.name + ' '), tag(sl, sc)),
+      add(h('div', 'fval'), h('b', null, m.value), p && p.value !== m.value ? h('span', 'was', `  avant : ${p.value}`) : null),
+      m.context ? h('div', 'ctx', m.context) : null));
+    mrows.append(r);
+  });
+  body.push(mrows);
+  const active = (f.cascade || []).filter(c => c.status === 'en_cours').length;
+  body.push(h('div', 'grp', `Cascade · ${active} étape${active > 1 ? 's' : ''} en cours sur ${(f.cascade || []).length}`));
+  const pc = new Map(((pf && pf.cascade) || []).map(c => [c.stage, c]));
+  const casc = h('div', 'casc');
+  (f.cascade || []).forEach(c => {
+    const p = pc.get(c.stage), changed = !!pf && (!p || p.status !== c.status || p.effect !== c.effect);
+    if (changed) n++;
+    const [sl, sc] = CS[c.status] || CS.inactif;
+    const st = h('div', 'stage ' + (c.status || 'inactif') + (changed ? ' chg' : ''));
+    st.style.setProperty('--c', sc);
+    add(st, add(h('div', 'shead'), h('span', 'code', c.stage), mono(c.delay || ''), tag(sl, sc), changed ? chgTag(!p) : null),
+      h('div', 'hl', c.label || ''), h('div', 'ctx', c.effect || ''));
+    casc.append(st);
+  });
+  body.push(casc);
+  if (f.note) body.push(h('p', 'note', f.note));
+  body.push(srcRefs(cur, [...(f.metrics || []).map(m => m.context), ...(f.cascade || []).map(c => c.effect)], [], 'Sources'));
+  // rail de la cascade : visible même replié
+  const rail = h('div', 'rail');
+  (f.cascade || []).forEach(c => { const s = h('span', 'st ' + (c.status === 'en_cours' ? 'en' : c.status === 'surveille' ? 'su' : ''), c.stage); s.title = c.label || ''; rail.append(s); });
+  const det = h('details', 'nest dossier' + (n > 0 ? ' chg' : ''));
+  const s = h('summary', 'nh');
+  add(s, h('span', 'code', 'DOS'), h('span', 'ntitle', 'Dossier · ' + f.title), mono(`${active}/${(f.cascade || []).length} en cours`), n > 0 ? tag(`${n} MODIF.`, 'var(--accent)') : null, h('span', 'stog'));
+  add(det, s, rail, add(h('div', 'cbody'), body));
+  det.open = !pf || n > 0;
+  return { el: det, n };
+}
+/* tests et exercices : détail dans Préparation officielle */
+function drillsBlock(cur, prev) {
+  const D = cur.drills; if (!Array.isArray(D) || !D.length) return null;
+  const V = { test_officiel: ['TEST OFFICIEL', 'var(--l0)'], exercice_sur_table: ['EXERCICE SUR TABLE', 'var(--l0)'],
+    rumeur_infondee: ['RUMEUR INFONDÉE', 'var(--l1)'], a_confirmer: ['À CONFIRMER', 'var(--ink-3)'] };
+  const pm = new Map(((prev && prev.drills) || []).map(x => [x.title, x]));
+  let n = 0;
+  const rows = h('div', 'rows');
+  D.forEach(x => {
+    const p = pm.get(x.title), changed = !!prev && (!p || p.verdict !== x.verdict || p.what !== x.what || (p.rumor || '') !== (x.rumor || ''));
+    if (changed) n++;
+    const [vl, vc] = V[x.verdict] || V.a_confirmer;
+    const r = h('div', 'row xrow' + (changed ? ' chg' : ''));
+    add(r, add(h('div', 'dcol'), mono(ddmm(x.date)), mono(x.zone || '')),
+      add(h('div'), add(h('div', 'hl'), changed ? chgTag(!p) : null, document.createTextNode((x.title || '') + ' '), tag(vl, vc)),
+        h('div', 'ctx', x.what || ''),
+        x.rumor ? add(h('div', 'ctx rumor'), mono('Ce qui circule · '), document.createTextNode(x.rumor)) : null));
+    rows.append(r);
+  });
+  const el = h('div', 'nest calm' + (n > 0 ? ' chg' : ''));
+  add(el, add(h('div', 'nh'), h('span', 'code', 'TST'), h('span', 'ntitle', 'Tests et exercices'), n > 0 ? tag(`${n} MODIF.`, 'var(--accent)') : null),
+    rows, srcRefs(cur, D.flatMap(x => [x.what, x.rumor]), D.flatMap(x => x.sources || []), 'Sources'));
+  return { el, n };
+}
+/* vue d'ensemble des domaines en orbite : un clic ouvre la carte du domaine */
+function orbit(cur, prev, withGeo) {
+  const pm = new Map((prev ? prev.domains : []).map(x => [x.id, x]));
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const cx = 170, cy = 150, R = { 3: 44, 2: 80, 1: 114, 0: 140 };
+  const svg = el('svg', { viewBox: '0 0 340 300', class: 'orbit', role: 'img', 'aria-label': 'Carte des domaines' });
+  [44, 80, 114, 140].forEach(r => svg.append(el('circle', { cx, cy, r, fill: 'none', stroke: 'var(--rule-2)', 'stroke-dasharray': '2 4' })));
+  svg.append(el('rect', { x: cx - 5, y: cy - 5, width: 10, height: 10, fill: lc(cur.alert.level | 0) }));
+  DORDER.forEach((id, i) => {
+    const d = cur.domains.find(x => x.id === id); if (!d) return;
+    const p = pm.get(id), lvl = Math.max(0, Math.min(3, d.level | 0));
+    const changed = !!prev && (!p || p.level !== d.level || (p.note || '') !== (d.note || ''));
+    const ang = (i * 45 + 22.5) * Math.PI / 180, r = R[lvl];
+    const x = cx + r * Math.sin(ang), y = cy - r * Math.cos(ang);
+    const g = el('g', { class: 'planet', tabindex: '0' });
+    if (changed) g.append(el('rect', { x: x - 7, y: y - 7, width: 14, height: 14, fill: 'none', stroke: 'var(--accent)', 'stroke-width': 1 }));
+    g.append(el('rect', { x: x - 4, y: y - 4, width: 8, height: 8, fill: lc(lvl) }));
+    const right = x >= cx;
+    const t = el('text', { x: x + (right ? 11 : -11), y: y + 3, 'text-anchor': right ? 'start' : 'end' });
+    t.textContent = DCODE[id] || id; g.append(t);
+    const go = () => {
+      const target = id === 'geo' && !withGeo ? document.getElementById('part-faits') : document.getElementById('dom-' + id);
+      if (target) { if (target.tagName === 'DETAILS') target.open = true; target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    };
+    g.addEventListener('click', go); g.addEventListener('keydown', ev => { if (ev.key === 'Enter') go(); });
+    svg.append(g);
+  });
+  const lg = h('div', 'legend');
+  [[3, 'N3'], [2, 'N2'], [1, 'N1'], [0, 'N0']].forEach(([v, l]) => { const s = h('span', 'sw'); s.style.background = lc(v); add(lg, add(h('span'), s, mono(l))); });
+  add(lg, add(h('span'), h('span', 'sw ring'), mono('modifié')));
+  return add(h('div', 'orbitbox'), svg, lg);
+}
+
+/* ===== 03 ANALYSE ===== */
+function analysisPart(cur, prev) {
+  const out = [];
+  if (cur.contradiction) {
+    const chg = !!prev && prev.contradiction !== cur.contradiction;
+    out.push(card('CTR', 'Contre-lecture', null, chg ? 1 : 0, prev, [h('p', 'txt', cur.contradiction), srcRefs(cur, [cur.contradiction], [], 'Sources')], true, 'ctr'));
+  }
+  const cs = changesSec(cur, prev); cs.querySelector('.stitle').textContent = 'Pourquoi ça compte'; cs.open = true; out.push(cs);
+  out.push(scenariosSec(cur, prev), impactsSec(cur, prev), indicatorsSec(cur, prev), hypSec(cur, prev));
+  return out;
+}
+
+/* barre des parties : collée sous l'en-tête, la puce active suit le défilement */
+function setNavTop() {
+  const top = document.querySelector('.top');
+  document.documentElement.style.setProperty('--hh', (top ? top.offsetHeight : 52) + 'px');
+}
+function markNav() {
+  const chips = [...document.querySelectorAll('.pchip')]; if (!chips.length) return;
+  const top = document.querySelector('.top');
+  const y = (top ? top.offsetHeight : 52) + 70;
+  let curId = 'brief';
+  PARTS.forEach(([id]) => { const t = document.getElementById('part-' + id); if (t && t.getBoundingClientRect().top <= y) curId = id; });
+  chips.forEach(c => c.classList.toggle('on', c.dataset.p === curId));
+}
+
+
+
+/* --- RADAR : signaux faibles hors périmètre, avec une décision --- */
+function radarSec(cur, prev) {
+  const R = cur.radar; if (!Array.isArray(R) || !R.length) return null;
+  const DC = { suivre: ['SUIVRE', 'var(--accent)'], verifier: ['VÉRIFIER', 'var(--l1)'], ignorer: ['IGNORER', 'var(--ink-3)'] };
+  const pm = new Map(((prev && prev.radar) || []).map(x => [x.title, x]));
+  let n = 0;
+  const rows = h('div', 'rows');
+  R.forEach((x, k) => {
+    const p = pm.get(x.title), changed = !!prev && (!p || p.decision !== x.decision || p.why !== x.why);
+    if (changed) n++;
+    const [dl, dc] = DC[x.decision] || DC.verifier;
+    const r = h('div', 'row' + (changed ? ' chg' : ''));
+    const cd = h('span', 'code', `RAD-${pad2(k + 1)}`); cd.style.color = dc;
+    add(r, cd, add(h('div'), add(h('div', 'hl'), changed ? chgTag(!p) : null, document.createTextNode((x.title || '') + ' '), tag(dl, dc)),
+      h('div', 'ctx', x.why || '')));
+    rows.append(r);
+  });
+  const refs = srcRefs(cur, R.map(x => x.why), R.flatMap(x => x.sources || []), 'Sources');
+  return section('RAD', 'Radar · hors périmètre', prev ? n : null, R.length, [rows, refs].filter(Boolean), true);
+}
+
+/* --- ÉCHÉANCES : dates à venir qui peuvent déplacer un risque --- */
+function calendarSec(cur, prev) {
+  const C = cur.calendar; if (!Array.isArray(C) || !C.length) return null;
+  const pk = new Set(((prev && prev.calendar) || []).map(x => `${x.date}|${x.label}`));
+  let n = 0;
+  const rows = h('div', 'rows');
+  [...C].sort(byDate).forEach(x => {
+    const isNew = !!prev && !pk.has(`${x.date}|${x.label}`);
+    if (isNew) n++;
+    const r = h('div', 'row xrow' + (isNew ? ' chg' : ''));
+    add(r, add(h('div', 'dcol'), mono(fmtDate(x.date))),
+      add(h('div'), add(h('div', 'hl'), isNew ? chgTag(true) : null, document.createTextNode(x.label || '')), x.why ? h('div', 'ctx', x.why) : null));
+    rows.append(r);
+  });
+  return section('CAL', 'Échéances', prev ? n : null, C.length, [rows]);
 }
 
 /* --- RÉSUMÉ : télémétrie (réticule, niveau géant, échelle N0→N4, relevé Doomsday) --- */
@@ -223,79 +554,7 @@ function hud(cur, prev) {
   return wrap;
 }
 
-/* --- THÉÂTRES GÉOPOLITIQUES : tour du monde en 5 régions, à chaque rapport --- */
-function theatersSec(cur, prev) {
-  const T = cur.theaters; if (!Array.isArray(T) || !T.length) return null;
-  const pm = new Map(((prev && prev.theaters) || []).map(t => [t.id, t]));
-  let n = 0;
-  const rows = h('div', 'rows');
-  T.forEach(t => {
-    const p = pm.get(t.id), lvl = Math.max(0, Math.min(3, t.level | 0));
-    const changed = !!prev && (!p || p.level !== t.level || p.note !== t.note);
-    if (changed) n++;
-    const d = !prev || !p ? '' : lvl > (p.level | 0) ? ' ▲' : lvl < (p.level | 0) ? ' ▼' : '';
-    const r = h('div', 'row trow' + (changed ? ' chg' : prev ? ' idem' : ''));
-    const cd = h('span', 'code', String(t.id).toUpperCase()); cd.style.color = lc(lvl);
-    const head = h('div', 'hl');
-    add(head, changed ? chgTag(!p) : null, document.createTextNode((t.name || t.id) + ' '), mono(`N${lvl}${d}`, d.includes('▲') ? 'up' : d.includes('▼') ? 'dn' : ''));
-    const show = !prev || changed;
-    const note = h('div', 'ctx', show ? t.note : '= IDEM');
-    if (!show) r.onclick = () => { note.textContent = note.textContent === '= IDEM' ? '= IDEM · ' + t.note : '= IDEM'; };
-    add(r, cd, add(h('div'), head, note));
-    rows.append(r);
-  });
-  const refs = srcRefs(cur, T.map(t => t.note), [], 'Sources');
-  return section('THE', 'Théâtres', prev ? n : null, T.length, [rows, refs].filter(Boolean), true);
-}
 
-/* --- FOCUS : sujet suivi en profondeur (ex. diesel) — quantités disponibles + cascade d'effets par étapes --- */
-function focusSec(cur, prev) {
-  const f = cur.focus; if (!f) return null;
-  const pf = prev && prev.focus && prev.focus.title === f.title ? prev.focus : null;
-  const MS = { ok: ['OK', 'var(--l0)'], surveille: ['À SURVEILLER', 'var(--l1)'], alerte: ['ALERTE', 'var(--accent)'] };
-  const CS = { en_cours: ['EN COURS', 'var(--accent)'], surveille: ['SURVEILLÉ', 'var(--l1)'], inactif: ['INACTIF', 'var(--ink-3)'] };
-  let n = 0;
-  const els = [];
-  if (f.why) els.push(h('p', 'lede fwhy', f.why));
-  // quantités et stocks
-  els.push(h('div', 'grp', 'Quantités et stocks'));
-  const pm = new Map(((pf && pf.metrics) || []).map(m => [m.name, m]));
-  const mrows = h('div', 'rows');
-  (f.metrics || []).forEach((m, k) => {
-    const p = pm.get(m.name), changed = !!pf && (!p || p.value !== m.value || p.status !== m.status);
-    if (changed) n++;
-    const [sl, sc] = MS[m.status] || MS.surveille;
-    const r = h('div', 'row frow' + (changed ? ' chg' : ''));
-    const cd = h('span', 'code', `STK-${pad2(k + 1)}`); cd.style.color = sc;
-    const body = h('div');
-    add(body, add(h('div', 'fname'), changed ? chgTag(!p) : null, document.createTextNode(m.name + ' '), tag(sl, sc)),
-      add(h('div', 'fval'), h('b', null, m.value), p && p.value !== m.value ? h('span', 'was', `  avant : ${p.value}`) : null),
-      m.context ? h('div', 'ctx', m.context) : null);
-    add(r, cd, body);
-    mrows.append(r);
-  });
-  els.push(mrows);
-  // cascade
-  const active = (f.cascade || []).filter(c => c.status === 'en_cours').length;
-  els.push(h('div', 'grp', `Cascade · ${active} étape${active > 1 ? 's' : ''} en cours sur ${(f.cascade || []).length}`));
-  const pc = new Map(((pf && pf.cascade) || []).map(c => [c.stage, c]));
-  const casc = h('div', 'casc');
-  (f.cascade || []).forEach(c => {
-    const p = pc.get(c.stage), changed = !!pf && (!p || p.status !== c.status || p.effect !== c.effect);
-    if (changed) n++;
-    const [sl, sc] = CS[c.status] || CS.inactif;
-    const st = h('div', 'stage ' + (c.status || 'inactif') + (changed ? ' chg' : ''));
-    st.style.setProperty('--c', sc);
-    add(st, add(h('div', 'shead'), h('span', 'code', c.stage), mono(c.delay || ''), tag(sl, sc), changed ? chgTag(!p) : null),
-      h('div', 'hl', c.label || ''), h('div', 'ctx', c.effect || ''));
-    casc.append(st);
-  });
-  els.push(casc);
-  if (f.note) els.push(h('p', 'note', f.note));
-  const refs = srcRefs(cur, [...(f.metrics || []).map(m => m.context), ...(f.cascade || []).map(c => c.effect)], [], 'Sources');
-  if (refs) els.push(refs);
-  return section('FOC', `Focus · ${f.title}`, prev ? n : null, `${active}/${(f.cascade || []).length}`, els, true);
-}
 
 /* --- CHANGEMENTS : fiche technique (compact) ou journal de bord (didactique) --- */
 function changeDetail(cur, c) {
@@ -349,60 +608,6 @@ function changesSec(cur, prev) {
   return section('CHG', 'Changements', prev ? cur.top_changes.length : null, cur.top_changes.length, body);
 }
 
-/* --- DOMAINES : carte stellaire (orbite = niveau, plus près du centre = plus critique) --- */
-function starMapSec(cur, prev) {
-  const pm = new Map((prev ? prev.domains : []).map(x => [x.id || x.name, x]));
-  const NS = 'http://www.w3.org/2000/svg';
-  const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
-  const W = 340, H = 300, cx = 170, cy = 150, R = { 3: 44, 2: 80, 1: 114, 0: 140 };
-  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, class: 'orbit', role: 'img', 'aria-label': 'Carte des 8 domaines' });
-  [44, 80, 114, 140].forEach(r => svg.append(el('circle', { cx, cy, r, fill: 'none', stroke: 'var(--rule-2)', 'stroke-dasharray': '2 4' })));
-  const lv = Math.max(0, Math.min(4, cur.alert.level | 0));
-  svg.append(el('rect', { x: cx - 5, y: cy - 5, width: 10, height: 10, fill: lc(lv) }));
-  const rows = h('div', 'rows');
-  const rowById = {};
-  let nChg = 0;
-  DORDER.forEach((id, i) => {
-    const d = cur.domains.find(x => x.id === id); if (!d) return;
-    const p = pm.get(id), lvl = Math.max(0, Math.min(3, d.level | 0));
-    const changed = !!prev && (!p || p.level !== d.level || (p.note || '') !== (d.note || ''));
-    if (changed) nChg++;
-    const delta = !prev ? '' : !p ? ' NOUV' : lvl > (p.level | 0) ? ' ▲' : lvl < (p.level | 0) ? ' ▼' : changed ? ' •' : '';
-    const ang = (i * 45 + 22.5) * Math.PI / 180, r = R[lvl];
-    const x = cx + r * Math.sin(ang), y = cy - r * Math.cos(ang);
-    const g = el('g', { class: 'planet' + (changed ? ' chg' : ''), tabindex: '0' });
-    if (changed) g.append(el('rect', { x: x - 7, y: y - 7, width: 14, height: 14, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1 }));
-    g.append(el('rect', { x: x - 4, y: y - 4, width: 8, height: 8, fill: lc(lvl) }));
-    const right = x >= cx;
-    const t = el('text', { x: x + (right ? 11 : -11), y: y + 3, 'text-anchor': right ? 'start' : 'end' });
-    t.textContent = (DCODE[id] || id) + delta;
-    g.append(t);
-    g.addEventListener('click', () => openRow(id));
-    g.addEventListener('keydown', ev => { if (ev.key === 'Enter') openRow(id); });
-    svg.append(g);
-    // ligne correspondante sous la carte
-    const row = h('div', 'row drow' + (changed ? ' chg' : prev ? ' idem' : ''));
-    const cd = h('span', 'code', DCODE[id]); cd.style.color = lc(lvl);
-    const show = !prev || changed;
-    const note = h('div', 'ctx', show ? (d.note || '—') : '= IDEM');
-    const head = h('div', 'hl');
-    add(head, document.createTextNode(d.name || id), mono(` N${lvl}${delta}`, delta.includes('▲') ? 'up' : delta.includes('▼') ? 'dn' : ''));
-    add(row, cd, add(h('div'), head, note));
-    row._toggle = () => { if (!show) note.textContent = note.textContent === '= IDEM' ? '= IDEM · ' + (d.note || '—') : '= IDEM'; };
-    if (!show) row.onclick = row._toggle;
-    rowById[id] = row; rows.append(row);
-  });
-  function openRow(id) {
-    const r = rowById[id]; if (!r) return;
-    Object.values(rowById).forEach(x => x.classList.remove('sel'));
-    r.classList.add('sel'); if (r._toggle && r.classList.contains('idem')) r._toggle();
-    r.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }
-  const lg = h('div', 'legend');
-  [[3, 'N3'], [2, 'N2'], [1, 'N1'], [0, 'N0']].forEach(([v, l]) => { const s = h('span', 'sw'); s.style.background = lc(v); add(lg, add(h('span'), s, mono(l))); });
-  add(lg, add(h('span'), h('span', 'sw ring'), mono('modifié')));
-  return section('DOM', 'Domaines', prev ? nChg : null, 8, [svg, lg, rows], true);
-}
 
 /* --- SCÉNARIOS : grille de chiffres, détail au toucher --- */
 function scenariosSec(cur, prev) {
@@ -611,6 +816,8 @@ async function loadSample() {
 /* ---------- événements ---------- */
 function init() {
   reports = load();
+  window.addEventListener('scroll', markNav, { passive: true });
+  window.addEventListener('resize', setNavTop);
   try { DOOM = validDoom(JSON.parse(localStorage.getItem(DOOM_KEY) || 'null')); } catch (e) { DOOM = null; }
   idx = reports.length - 1;
   $('#prev').onclick = () => { if (idx > 0) { idx--; render(); window.scrollTo(0, 0); } };

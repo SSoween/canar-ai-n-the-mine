@@ -581,6 +581,20 @@
         },
         "note": {
           "type": "string"
+        },
+        "domain": {
+          "type": "string",
+          "enum": [
+            "geo",
+            "energie",
+            "supply",
+            "cyber",
+            "climat",
+            "sante",
+            "social",
+            "prep"
+          ],
+          "description": "Domaine d'affichage (facultatif ; sinon rangement par défaut de l'application)."
         }
       }
     },
@@ -616,6 +630,178 @@
           }
         }
       }
+    },
+    "watch": {
+      "type": "array",
+      "maxItems": 10,
+      "description": "Veille élargie : canaux de risque hors géopolitique, suivis à chaque rapport (ids fixes).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "level",
+          "note"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]{2,4}$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 260
+          },
+          "local": {
+            "type": "string",
+            "maxLength": 160,
+            "description": "Effet concret au Québec, pour la famille."
+          },
+          "domain": {
+            "type": "string",
+            "enum": [
+              "geo",
+              "energie",
+              "supply",
+              "cyber",
+              "climat",
+              "sante",
+              "social",
+              "prep"
+            ],
+            "description": "Domaine d'affichage (facultatif ; sinon rangement par défaut de l'application)."
+          }
+        }
+      }
+    },
+    "drills": {
+      "type": "array",
+      "maxItems": 6,
+      "description": "Tests et exercices officiels de la période (alertes, exercices de coupure) et rumeurs associées : ce qui inquiète mais est maîtrisé.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "date",
+          "zone",
+          "title",
+          "what",
+          "verdict"
+        ],
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "zone": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "what": {
+            "type": "string",
+            "maxLength": 240
+          },
+          "rumor": {
+            "type": "string",
+            "maxLength": 240
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "test_officiel",
+              "exercice_sur_table",
+              "rumeur_infondee",
+              "a_confirmer"
+            ]
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "radar": {
+      "type": "array",
+      "maxItems": 3,
+      "description": "Signaux faibles hors périmètre, avec une décision explicite.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "why",
+          "decision"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "why": {
+            "type": "string",
+            "maxLength": 260
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "suivre",
+              "verifier",
+              "ignorer"
+            ]
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "calendar": {
+      "type": "array",
+      "maxItems": 8,
+      "description": "Échéances connues à venir qui peuvent déplacer un risque.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "date",
+          "label"
+        ],
+        "properties": {
+          "date": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "label": {
+            "type": "string"
+          },
+          "why": {
+            "type": "string",
+            "maxLength": 160
+          }
+        }
+      }
+    },
+    "contradiction": {
+      "type": "string",
+      "maxLength": 320,
+      "description": "Contre-lecture : le fait de la période qui contredit le plus le scénario principal, et ce qu'on en conclut."
     }
   }
 }

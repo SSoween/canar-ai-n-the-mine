@@ -50,13 +50,51 @@ THÉÂTRES (bloc "theaters", OBLIGATOIRE à chaque rapport)
 - Ne laisse pas l'énergie absorber la géopolitique : un sommet, une frappe majeure, une crise diplomatique ou militaire
   doit apparaître dans son théâtre même s'il n'a pas d'effet direct sur les prix.
 - Région sans fait nouveau : même niveau et même note, recopiés à l'identique.
+- Théâtre et canal ne sont pas exclusifs : un fait peut alimenter un théâtre ET un canal de la veille élargie.
 
 FOCUS (bloc "focus", s'il existe dans le rapport précédent)
+- Le focus s'affiche comme dossier dans son domaine ("domain", energie par défaut).
 - Reprends-le à chaque rapport : même "title", mêmes "metrics" (même "name") et mêmes étapes "cascade" (même "stage").
 - Mets à jour une valeur ou un statut UNIQUEMENT si un fait de la période le justifie ; sinon recopie à l'identique.
 - metrics.status : ok, surveille ou alerte. cascade.status : en_cours, surveille ou inactif.
 - Une étape de la cascade ne passe à "en_cours" que sur un fait vérifié (ex. allocation annoncée, stations à sec signalées).
 - Cite les sources entre crochets dans "context" et "effect".
+
+VEILLE ÉLARGIE (bloc "watch", OBLIGATOIRE à chaque rapport)
+- But : ne pas dépendre des sujets déjà suivis. Couvre toujours ces 7 canaux, avec ces ids et ces noms :
+  pan (Pannes techniques et cyber), gaz (Gaz en Europe), eng (Engrais et prix alimentaires),
+  sab (Sabotage d'infrastructures), h5n (Grippe aviaire H5N1), res (Réseau électrique du Québec),
+  tau (Taux et crédit des ménages).
+- Pour chaque canal : niveau 0 à 3, une note de 260 caractères maximum avec les faits et leurs sources [n],
+  et "local" : l'effet concret au Québec pour une famille, ou "Aucun effet direct" s'il n'y en a pas.
+- L'application range chaque canal dans un domaine (pan → cyber ; gaz, res → energie ; eng, sab → supply ; h5n → sante ;
+  tau → social). Pour un nouveau canal, indique son domaine dans "domain".
+- Une panne compte même si elle n'est pas malveillante : ce qui importe est la dépendance, pas la cause.
+- Canal sans fait nouveau : même niveau, même note, même "local", recopiés à l'identique.
+- Seuils qui font monter un canal : transmission interhumaine (h5n) ; appel public d'Hydro-Québec ou délestage (res) ;
+  attaque physique au Canada ou sur une raffinerie, un oléoduc ou un poste électrique du nord-est (sab) ;
+  panne touchant paiements, télécoms ou contrôle aérien au Canada (pan).
+
+TESTS ET EXERCICES (bloc "drills")
+- But : désamorcer l'inquiétude. Liste les tests d'alerte, exercices de coupure ou de crise prévus ou tenus
+  pendant la période (Canada, États-Unis, France, Europe) et les rumeurs qui s'y rattachent.
+- verdict : "test_officiel" (annoncé par une autorité), "exercice_sur_table" (aucune coupure réelle),
+  "rumeur_infondee" (démentie par une autorité ou un vérificateur de faits), "a_confirmer" (date ou nature incertaines).
+- "what" dit ce qui se passe réellement ; "rumor" dit ce qui circule et pourquoi c'est faux ou exagéré.
+- Retire un test une fois passé de plus de 7 jours. Rien de prévu : bloc vide.
+
+RADAR (bloc "radar", 0 à 3 éléments)
+- Signaux faibles HORS des domaines, théâtres et canaux suivis, qui pourraient compter.
+- Pour chacun : pourquoi ça pourrait compter (mécanisme) et une décision : suivre, verifier ou ignorer.
+- Un signal "suivre" deux rapports de suite doit devenir un canal ou un indicateur : dis-le dans la note.
+
+ÉCHÉANCES (bloc "calendar", 0 à 8 éléments)
+- Dates connues à venir qui peuvent déplacer un risque (décision de taux, rapport de stocks, fin de convention
+  collective, sommet, publication d'une évaluation officielle). Retire les dates passées.
+
+CONTRE-LECTURE (champ "contradiction", OBLIGATOIRE)
+- Cherche activement le fait de la période qui contredit le plus ton scénario principal ou un indicateur,
+  et dis ce que tu en conclus. Si un indicateur ou une hypothèse du rapport précédent était faux, corrige-le ici.
 
 CHAMPS
 - domains : exactement 8, ids geo, energie, supply, cyber, climat, sante, social, prep ;
@@ -70,6 +108,10 @@ CHAMPS
 - sources : liste les numéros du registre que tu as cités (n et title).
 - caveat : une phrase sur ce qui, dans ce rapport, pourrait être faux.
 - Marque ~ une inférence et → une projection dans les justifications. Pas de vocabulaire apocalyptique.
+
+SÉPARATION FAITS / ANALYSE
+- theaters, domains, watch, drills et radar décrivent ce qui s'est passé : jamais de probabilité ni de pourcentage de risque.
+- Les probabilités, mécanismes et projections vont dans scenarios, top_changes (mechanism, effect), indicators et contradiction.
 
 SORTIE
 Uniquement l'objet JSON du rapport, conforme au schéma imposé. Date du rapport : {{DATE}}.
