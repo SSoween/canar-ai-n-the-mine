@@ -2,7 +2,7 @@
    Autorité par la typographie et les filets : pas de cartes, pas d'ombres, pas de dégradés, rayon 2 px.
    Le fond étoilé est le seul décor. La couleur ne sert qu'au sens (niveaux, codes, chiffres, repères). */
 :root{
-  --paper:#090E1D; --ink:#E7EAF6; --ink-2:#A7AFCB; --ink-3:#6A7497;
+  --paper:#090E1D; --ink:#E7EAF6; --ink-2:#A7AFCB; --ink-3:#8A94B8;
   --rule:#E7EAF6; --rule-2:rgba(150,170,230,.18); --fill:rgba(150,170,230,.07);
   --accent:#FF5A1F;                                   /* « demande une action » */
   --l0:#4CC487; --l1:#E6B439; --l2:#FF7A2F; --l3:#FF5A5A; --l4:#DADFF0;
@@ -305,3 +305,42 @@ summary.nh{cursor:pointer} summary.nh::-webkit-details-marker{display:none}
 /* le résumé (HUD) garde ses repères d'angle ; on retire le filet du méta */
 .brief{padding-top:0}
 .recul{margin-top:14px}
+
+/* v17 : tableau des niveaux par domaine (remplace la carte en orbite) + contraste renforcé */
+.lvb{margin-top:10px}
+.lvh{display:flex;justify-content:space-between;gap:8px;font:500 11px/16px var(--f-m);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);padding:0 2px 6px}
+.lvrow{display:grid;grid-template-columns:1fr 104px 44px;gap:12px;align-items:center;width:100%;padding:10px 6px;border:0;border-top:1px solid var(--rule-2);
+  background:none;color:var(--ink);text-align:left;cursor:pointer;font:inherit}
+.lvrow:hover{background:var(--fill)}
+.lvrow.chg{box-shadow:inset 2px 0 0 var(--accent)}
+.lvrow .nm{font:600 15px/20px var(--f-b)}
+.lvrow .nm .tag{margin-left:6px;vertical-align:1px}
+.gauge{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.gauge span{height:10px;box-shadow:inset 0 0 0 1px var(--edge)}
+.lvrow .nv{font:700 13px/16px var(--f-m);text-align:right;letter-spacing:.04em}
+.code,.scode{font-size:12px}
+.ntitle{flex:1 1 150px}
+.ctitle{flex:1 1 140px}
+
+/* v19 : lecture (✓ Lu / Relire), changement de niveau animé, tableau des niveaux replié */
+.rdbtn{--cut:5px;flex:none;border:0;cursor:pointer;font:600 10px/14px var(--f-m);letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;color:var(--ink-2);background:transparent;
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));box-shadow:inset 0 0 0 1px var(--edge);align-self:center}
+.rdbtn:hover{color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink-2)}
+.rdbtn.on{color:var(--l0);box-shadow:inset 0 0 0 1px var(--l0)}
+.isread{opacity:.75}
+.pchip i.rc{color:var(--l0)}
+.lvchg{font:700 12px/16px var(--f-m);letter-spacing:.04em;color:var(--to);white-space:nowrap}
+.gauge span.flash{background:var(--to)}
+@media (prefers-reduced-motion:no-preference){
+  .lvchg{animation:lvtxt 2.4s ease-in-out infinite}
+  .gauge span.flash{animation:lvfade 2.4s ease-in-out infinite}
+  @keyframes lvfade{0%,100%{background:var(--to)}50%{background:var(--from)}}
+  @keyframes lvtxt{0%,100%{color:var(--to)}50%{color:var(--from)}}
+}
+.lvrow .lvnote{grid-column:1 / -1;font:400 13px/18px var(--f-b);color:var(--ink-2);margin-top:-2px}
+.lvsame{border-top:1px solid var(--rule-2)}
+.lvsame>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:10px 6px}
+.lvsame>summary::-webkit-details-marker{display:none}
+.lvsame[open]>summary .stog::before{content:"−"}
+.pnav{gap:3px}
+.pchip{padding:8px 2px;font-size:10.5px}

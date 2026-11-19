@@ -108,6 +108,7 @@ function section(code, title, status, count, bodyEls, open = false) {
   d.append(s, add(h('div', 'sbody'), bodyEls));
   d.open = open;
   d.dataset.n = status > 0 ? status : 0;
+  d.dataset.key = code;
   return d;
 }
 
@@ -139,7 +140,16 @@ function srcRefs(cur, texts, extra, label = 'Preuve') {
    et les tests sont rangés dans leur domaine. */
 const WMAP = { pan: 'cyber', gaz: 'energie', res: 'energie', eng: 'supply', sab: 'supply', h5n: 'sante', tau: 'social' };
 const DNAME = { cyber: 'Cyber et pannes', social: 'Économie des ménages' };
-const PARTS = [['brief', 'Brief'], ['faits', 'Faits'], ['analyse', 'Analyse'], ['agir', 'Agir']];
+const PARTS = [['brief', 'Brief'], ['faits', 'Faits'], ['analyse', 'Analyse'], ['agir', 'Agir'], ['lus', 'Lus']];
+const READ_KEY = 'riskwatch.read.v1';
+function readGet(date) { try { const o = JSON.parse(localStorage.getItem(READ_KEY) || '{}'); return new Set(o[date] || []); } catch (e) { return new Set(); } }
+function readToggle(date, key) {
+  let o = {}; try { o = JSON.parse(localStorage.getItem(READ_KEY) || '{}'); } catch (e) { o = {}; }
+  const s = new Set(o[date] || []); s.has(key) ? s.delete(key) : s.add(key);
+  o = { [date]: [...s] }; // seul le rapport affiché garde ses lectures : un nouveau rapport repart de zéro
+  try { localStorage.setItem(READ_KEY, JSON.stringify(o)); } catch (e) { /* stockage indisponible */ }
+  const y = window.scrollY || 0; render(); try { window.scrollTo(0, y); } catch (e) { /* rien */ }
+}
 const nOf = el => [...el.querySelectorAll('[data-n]')].reduce((s, e) => s + (Number(e.dataset.n) || 0), 0);
 const ddmm = d => (/^\d{4}-\d{2}-\d{2}$/.test(d || '') ? `${d.slice(8, 10)}/${d.slice(5, 7)}` : '—');
 
@@ -149,24 +159,34 @@ function partHead(num, id, title, hint) {
   return d;
 }
 /* carte biseautée repliable (même logique que section) */
-function card(code, title, lvl, n, prev, bodyEls, open, extraCls) {
+function card(code, title, lvl, n, prev, bodyEls, open, extraCls, prevLvl) {
   const d = h('details', 'card' + (extraCls ? ' ' + extraCls : '') + (n > 0 ? ' chg' : ''));
   if (lvl != null) d.style.setProperty('--lv', lc(lvl));
   d.dataset.n = n > 0 ? n : 0;
+  d.dataset.key = code;
   const s = h('summary', 'ch');
   const cd = h('span', 'code', code); if (lvl != null) cd.style.color = lc(lvl);
   const st = !prev ? 'RÉF.' : n > 0 ? `${n} MODIF.` : '= IDEM';
-  add(s, cd, h('span', 'ctitle', title), lvl != null ? mono('N' + lvl) : null, h('span', 'sstat' + (n > 0 ? ' chg' : ''), st), h('span', 'stog'));
+  add(s, cd, h('span', 'ctitle', title), lvl != null ? lvlLabel(lvl, prevLvl) : null, h('span', 'sstat' + (n > 0 ? ' chg' : ''), st), h('span', 'stog'));
   d.append(s, add(h('div', 'cbody'), bodyEls));
   d.open = !!open;
   return d;
+}
+/* niveau affiché ; s'il a changé : « N2 → N3 », la couleur passe en fondu de l'ancienne à la nouvelle */
+function lvlLabel(lvl, prevLvl) {
+  if (prevLvl == null || prevLvl === lvl) return mono('N' + lvl);
+  const s = h('span', 'lvchg', `N${prevLvl} → N${lvl}`);
+  s.style.setProperty('--from', lc(prevLvl)); s.style.setProperty('--to', lc(lvl));
+  s.title = `Niveau ${lvl > prevLvl ? 'en hausse' : 'en baisse'} depuis le rapport précédent`;
+  return s;
 }
 function jump(id) { const t = document.getElementById('part-' + id); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 function navBar(counts) {
   const n = h('nav', 'pnav');
   PARTS.forEach(([id, l]) => {
     const b = h('button', 'pchip', l); b.dataset.p = id;
-    if (counts[id] > 0) b.append(h('i', null, '●'));
+    if (id === 'lus') { if (counts.lus > 0) b.append(h('i', 'rc', String(counts.lus))); }
+    else if (counts[id] > 0) b.append(h('i', null, '●'));
     b.onclick = () => jump(id);
     n.append(b);
   });
@@ -190,7 +210,7 @@ function render() {
   }
   const cur = reports[idx], prev = idx > 0 ? reports[idx - 1] : null;
   $('#dateLbl').textContent = fmtDate(cur.date);
-  $('#posLbl').textContent = `${idx + 1}/${reports.length}` + (prev ? ` · vs ${fmtDate(prev.date)}` : ' · référence');
+  $('#posLbl').textContent = `n° ${idx + 1} sur ${reports.length}` + (prev ? ` · comparé au ${fmtDate(prev.date).slice(0, 5)}` : ' · référence');
 
   const parts = {
     brief: add(h('section', 'pt'), partHead('01', 'brief', 'Brief', '30 secondes'), briefPart(cur, prev)),
@@ -198,9 +218,27 @@ function render() {
     analyse: add(h('section', 'pt'), partHead('03', 'analyse', 'Analyse', 'ce qu\'on en pense'), analysisPart(cur, prev)),
     agir: add(h('section', 'pt'), partHead('04', 'agir', 'Agir', 'que faire'), actionsSec(cur, prev), calendarSec(cur, prev))
   };
+  // lecture : chaque carte des parties Faits, Analyse et Agir peut être marquée lue et rangée dans « Lus »
+  const read = readGet(cur.date);
+  const lus = add(h('section', 'pt'), partHead('05', 'lus', 'Lus', 'remis à zéro à chaque rapport'));
+  const lusBox = h('div');
+  ['faits', 'analyse', 'agir'].forEach(k => {
+    parts[k].querySelectorAll('[data-key]').forEach(el => {
+      const key = el.dataset.key, isRead = read.has(key);
+      const sum = el.querySelector('summary');
+      const b = h('button', 'rdbtn' + (isRead ? ' on' : ''), isRead ? 'Relire' : '✓ Lu');
+      b.title = isRead ? 'Remettre à sa place' : 'Marquer lu et ranger en bas';
+      b.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); readToggle(cur.date, key); };
+      if (sum) sum.insertBefore(b, sum.querySelector('.stog'));
+      if (isRead) { el.open = false; el.classList.add('isread'); lusBox.append(el); }
+    });
+  });
+  if (!lusBox.children.length) lusBox.append(h('p', 'note', 'Touche « ✓ Lu » sur une carte pour la ranger ici. La liste repart de zéro à chaque nouveau rapport.'));
+  lus.append(lusBox);
   const counts = {}; Object.keys(parts).forEach(k => { counts[k] = nOf(parts[k]); });
   counts.brief = 0; // le Brief résume, il ne compte pas
-  app.append(navBar(counts), ...Object.values(parts));
+  counts.lus = read.size;
+  app.append(navBar(counts), ...Object.values(parts), lus);
   const ann = add(h('section', 'pt'), partHead('—', 'annexes', 'Annexes', 'sources · recul'), sourcesSec(cur));
   if (cur.caveat) ann.append(add(h('div', 'recul'), mono('Recul'), h('p', null, String(cur.caveat))));
   app.append(ann);
@@ -228,18 +266,20 @@ function briefPart(cur, prev) {
   const D = Array.isArray(cur.drills) ? cur.drills : [];
   if (D.length) {
     const V = { test_officiel: ['TEST OFFICIEL', 'var(--l0)'], exercice_sur_table: ['SUR TABLE', 'var(--l0)'], rumeur_infondee: ['RUMEUR INFONDÉE', 'var(--l1)'], a_confirmer: ['À CONFIRMER', 'var(--ink-3)'] };
-    const c = h('div', 'card calm');
+    const pmD = new Map(((prev && prev.drills) || []).map(x => [x.title, x]));
+    let nD = 0;
     const rr = h('div', 'rows');
     D.forEach(x => {
+      const p = pmD.get(x.title), changed = !!prev && (!p || p.verdict !== x.verdict || p.what !== x.what || (p.rumor || '') !== (x.rumor || ''));
+      if (changed) nD++;
       const [vl, vc] = V[x.verdict] || V.a_confirmer;
-      const r = h('div', 'row xrow');
-      add(r, mono(ddmm(x.date)), add(h('div'), add(h('div', 'hl'), document.createTextNode((x.title || '') + ' '), tag(vl, vc)), mono(x.zone || '')));
+      const r = h('div', 'row xrow' + (changed ? ' chg' : ''));
+      add(r, mono(ddmm(x.date)), add(h('div'), add(h('div', 'hl'), changed ? chgTag(!p) : null, document.createTextNode((x.title || '') + ' '), tag(vl, vc)), mono(x.zone || '')));
       rr.append(r);
     });
     const more = h('button', 'act lnk', '› détail : Faits › Préparation'); more.onclick = () => { const t = document.getElementById('dom-prep'); if (t) { t.open = true; t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } };
-    add(c, add(h('div', 'ch'), h('span', 'code', 'TST'), h('span', 'ctitle', 'Pas d\'inquiétude')),
-      add(h('div', 'cbody'), h('p', 'note', 'Tests et rumeurs : encadrés, aucune action requise.'), rr, more));
-    out.push(c);
+    out.push(card('TST', `Pas d'inquiétude · ${D.length} tests et rumeurs`, null, nD, prev,
+      [h('p', 'note', 'Encadrés ou démentis : aucune action requise.'), rr, more], false, 'calm'));
   }
   // prochaines échéances
   const C = (Array.isArray(cur.calendar) ? cur.calendar : []).filter(x => x.date >= cur.date).sort(byDate).slice(0, 3);
@@ -264,12 +304,12 @@ function factsPart(cur, prev) {
       const p = pm.get(t.id), lvl = Math.max(0, Math.min(3, t.level | 0));
       const changed = !!prev && (!p || p.level !== t.level || p.note !== t.note);
       const d = !prev || !p ? '' : lvl > (p.level | 0) ? ' ▲' : lvl < (p.level | 0) ? ' ▼' : '';
-      out.push(card(String(t.id).toUpperCase(), (t.name || t.id) + d, lvl, changed ? 1 : 0, prev,
-        [h('p', 'txt', t.note || ''), srcRefs(cur, [t.note], [], 'Sources')], !prev || changed));
+      out.push(card(String(t.id).toUpperCase(), t.name || t.id, lvl, changed ? 1 : 0, prev,
+        [h('p', 'txt', t.note || ''), srcRefs(cur, [t.note], [], 'Sources')], !prev || changed, null, p ? (p.level | 0) : null));
     });
   }
   out.push(h('div', 'subh', 'Systèmes · domaines, canaux et dossiers'));
-  out.push(orbit(cur, prev, !T.length));
+  out.push(levelBoard(cur, prev, !T.length));
   const W = Array.isArray(cur.watch) ? cur.watch : [];
   const pw = new Map(((prev && prev.watch) || []).map(w => [w.id, w]));
   const pd = new Map(((prev && prev.domains) || []).map(d => [d.id, d]));
@@ -288,7 +328,7 @@ function factsPart(cur, prev) {
       placed.add(w.id); const x = channelBlock(cur, w, pw.get(w.id), prev); n += x.n; body.push(x.el);
     });
     if (id === 'prep') { const x = drillsBlock(cur, prev); if (x) { n += x.n; body.push(x.el); } }
-    const c = card(DCODE[id] || id.toUpperCase(), (DNAME[id] || d.name || id) + delta, lvl, n, prev, body, !prev || n > 0);
+    const c = card(DCODE[id] || id.toUpperCase(), DNAME[id] || d.name || id, lvl, n, prev, body, !prev || n > 0, null, p ? (p.level | 0) : null);
     c.id = 'dom-' + id;
     out.push(c);
   });
@@ -396,41 +436,58 @@ function drillsBlock(cur, prev) {
     rows, srcRefs(cur, D.flatMap(x => [x.what, x.rumor]), D.flatMap(x => x.sources || []), 'Sources'));
   return { el, n };
 }
-/* vue d'ensemble des domaines en orbite : un clic ouvre la carte du domaine */
-function orbit(cur, prev, withGeo) {
+/* tableau des niveaux par domaine : nom complet, jauge à 4 crans (N0 calme → N3 critique), du plus critique au plus calme.
+   Remplace l'ancienne carte en orbite, jugée illisible. Toucher une ligne ouvre la carte du domaine. */
+function levelBoard(cur, prev, withGeo) {
   const pm = new Map((prev ? prev.domains : []).map(x => [x.id, x]));
-  const NS = 'http://www.w3.org/2000/svg';
-  const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
-  const cx = 170, cy = 150, R = { 3: 44, 2: 80, 1: 114, 0: 140 };
-  const svg = el('svg', { viewBox: '0 0 340 300', class: 'orbit', role: 'img', 'aria-label': 'Carte des domaines' });
-  [44, 80, 114, 140].forEach(r => svg.append(el('circle', { cx, cy, r, fill: 'none', stroke: 'var(--rule-2)', 'stroke-dasharray': '2 4' })));
-  svg.append(el('rect', { x: cx - 5, y: cy - 5, width: 10, height: 10, fill: lc(cur.alert.level | 0) }));
-  DORDER.forEach((id, i) => {
-    const d = cur.domains.find(x => x.id === id); if (!d) return;
-    const p = pm.get(id), lvl = Math.max(0, Math.min(3, d.level | 0));
+  const wrap = h('div', 'lvb');
+  add(wrap, add(h('div', 'lvh'), h('span', null, 'Niveau par domaine'), h('span', null, 'barres = niveau · N0 calme → N3 critique')));
+  const ds = DORDER.map(id => cur.domains.find(x => x.id === id)).filter(Boolean)
+    .sort((a, b) => (b.level | 0) - (a.level | 0) || DORDER.indexOf(a.id) - DORDER.indexOf(b.id));
+  const same = [];
+  ds.forEach(d => {
+    const p = pm.get(d.id), lvl = Math.max(0, Math.min(3, d.level | 0)), pl = p ? Math.max(0, Math.min(3, p.level | 0)) : null;
     const changed = !!prev && (!p || p.level !== d.level || (p.note || '') !== (d.note || ''));
-    const ang = (i * 45 + 22.5) * Math.PI / 180, r = R[lvl];
-    const x = cx + r * Math.sin(ang), y = cy - r * Math.cos(ang);
-    const g = el('g', { class: 'planet', tabindex: '0' });
-    if (changed) g.append(el('rect', { x: x - 7, y: y - 7, width: 14, height: 14, fill: 'none', stroke: 'var(--accent)', 'stroke-width': 1 }));
-    g.append(el('rect', { x: x - 4, y: y - 4, width: 8, height: 8, fill: lc(lvl) }));
-    const right = x >= cx;
-    const t = el('text', { x: x + (right ? 11 : -11), y: y + 3, 'text-anchor': right ? 'start' : 'end' });
-    t.textContent = DCODE[id] || id; g.append(t);
-    const go = () => {
-      const target = id === 'geo' && !withGeo ? document.getElementById('part-faits') : document.getElementById('dom-' + id);
-      if (target) { if (target.tagName === 'DETAILS') target.open = true; target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    const row = h('button', 'lvrow' + (changed ? ' chg' : ''));
+    const gauge = h('span', 'gauge');
+    for (let i = 1; i <= 3; i++) {
+      const s = h('span');
+      const to = i <= lvl ? lc(lvl) : 'transparent';
+      s.style.background = to;
+      if (pl != null && pl !== lvl) { s.className = 'flash'; s.style.setProperty('--from', i <= pl ? lc(pl) : 'transparent'); s.style.setProperty('--to', to); }
+      gauge.append(s);
+    }
+    const nv = pl != null && pl !== lvl ? lvlLabel(lvl, pl) : h('span', null, 'N' + lvl);
+    nv.classList.add('nv'); if (pl == null || pl === lvl) nv.style.color = lc(lvl);
+    add(row, add(h('span', 'nm'), document.createTextNode((DNAME[d.id] || d.name || d.id) + ' '), changed ? tag(p ? 'MODIF.' : 'NOUV', 'var(--accent)') : null), gauge, nv,
+      (!prev || changed) && d.note ? h('span', 'lvnote', d.note.replace(/\s*\[\d+\](\[\d+\])*/g, '')) : null);
+    row.onclick = () => {
+      const tg = d.id === 'geo' && !withGeo ? document.getElementById('part-faits') : document.getElementById('dom-' + d.id);
+      if (tg) { if (tg.tagName === 'DETAILS') tg.open = true; tg.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     };
-    g.addEventListener('click', go); g.addEventListener('keydown', ev => { if (ev.key === 'Enter') go(); });
-    svg.append(g);
+    if (!prev || changed) wrap.append(row); else same.push(row);
   });
-  const lg = h('div', 'legend');
-  [[3, 'N3'], [2, 'N2'], [1, 'N1'], [0, 'N0']].forEach(([v, l]) => { const s = h('span', 'sw'); s.style.background = lc(v); add(lg, add(h('span'), s, mono(l))); });
-  add(lg, add(h('span'), h('span', 'sw ring'), mono('modifié')));
-  return add(h('div', 'orbitbox'), svg, lg);
+  if (same.length) {
+    const dd = h('details', 'lvsame');
+    dd.append(add(h('summary', null), mono(`Inchangés · ${same.length} · = IDEM`), h('span', 'stog')), add(h('div'), same));
+    wrap.append(dd);
+  }
+  return wrap;
 }
 
 /* ===== 03 ANALYSE ===== */
+/* scénarios et impacts dans une seule section : ce sont les mêmes SCN */
+function scenImpSec(cur, prev) {
+  const s = scenariosSec(cur, prev), i = impactsSec(cur, prev);
+  const sb = s.querySelector('.sbody'), ib = i.querySelector('.sbody');
+  sb.append(h('div', 'grp', 'Impacts sur la vie quotidienne · mêmes SCN'));
+  [...ib.children].forEach(c => sb.append(c));
+  const n = (Number(s.dataset.n) || 0) + (Number(i.dataset.n) || 0);
+  s.dataset.n = n;
+  if (prev) { const st = s.querySelector('.sstat'); st.textContent = n > 0 ? `${n} MODIF.` : '= IDEM'; st.classList.toggle('chg', n > 0); }
+  s.querySelector('.stitle').textContent = 'Scénarios et impacts';
+  return s;
+}
 function analysisPart(cur, prev) {
   const out = [];
   if (cur.contradiction) {
@@ -438,7 +495,7 @@ function analysisPart(cur, prev) {
     out.push(card('CTR', 'Contre-lecture', null, chg ? 1 : 0, prev, [h('p', 'txt', cur.contradiction), srcRefs(cur, [cur.contradiction], [], 'Sources')], true, 'ctr'));
   }
   const cs = changesSec(cur, prev); cs.querySelector('.stitle').textContent = 'Pourquoi ça compte'; cs.open = true; out.push(cs);
-  out.push(scenariosSec(cur, prev), impactsSec(cur, prev), indicatorsSec(cur, prev), hypSec(cur, prev));
+  out.push(scenImpSec(cur, prev), indicatorsSec(cur, prev), hypSec(cur, prev));
   return out;
 }
 
@@ -490,7 +547,8 @@ function calendarSec(cur, prev) {
     if (isNew) n++;
     const r = h('div', 'row xrow' + (isNew ? ' chg' : ''));
     add(r, add(h('div', 'dcol'), mono(fmtDate(x.date))),
-      add(h('div'), add(h('div', 'hl'), isNew ? chgTag(true) : null, document.createTextNode(x.label || '')), x.why ? h('div', 'ctx', x.why) : null));
+      add(h('div'), add(h('div', 'hl'), isNew ? chgTag(true) : null, document.createTextNode(x.label || '')), x.why ? h('div', 'ctx', x.why) : null,
+        srcRefs(cur, [x.why], x.sources || [], 'Sources')));
     rows.append(r);
   });
   return section('CAL', 'Échéances', prev ? n : null, C.length, [rows]);

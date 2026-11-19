@@ -794,6 +794,13 @@
           "why": {
             "type": "string",
             "maxLength": 160
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
           }
         }
       }
